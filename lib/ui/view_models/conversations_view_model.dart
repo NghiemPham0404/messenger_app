@@ -1,33 +1,63 @@
 import 'dart:async';
 
 import 'package:chatting_app/data/models/conversation.dart';
-import 'package:chatting_app/data/models/message.dart';
+import 'package:chatting_app/data/repositories/auth_repo.dart';
 import 'package:chatting_app/data/repositories/conversation_repo.dart';
+import 'package:flutter/cupertino.dart';
 
-class ConversationsViewModel {
-
+class ConversationsViewModel extends ChangeNotifier {
   final _conversationRepo = ConversationRepo();
 
-  // Private constructor
-  ConversationsViewModel._internal();
+  final _authRepo = AuthRepo();
 
-  // Singleton instance
-  static final ConversationsViewModel _instance = ConversationsViewModel._internal();
+  int get currentUserId => _authRepo.currentUser!.id;
 
-  factory ConversationsViewModel(){
-    return _instance;
+  StreamSubscription? _conversationSubscription;
+
+  ConversationsViewModel() {
+    requestUserConversation();
+    listenToConversationStream();
   }
 
-  void requestGetConversationsOfUser(){
-    _conversationRepo.requestUserConversations();
+  void listenToConversationStream() {
+    _setLoading(true);
+    _conversationSubscription?.cancel();
+    _conversationSubscription = _conversationRepo.userConversation.listen(
+      (newConversations) {
+        _conversations = newConversations;
+        _setError(null);
+        _setLoading(false);
+      },
+      onError: (error) {
+        _setError("Failed to get conversations : ${error.toString()}");
+        _setLoading(false);
+      },
+    );
   }
 
-  Stream<List<Conversation>> getUserConversations() => _conversationRepo.getUserConversations();
+  List<Conversation> _conversations = [];
 
-  void requestGetConversationMessages(int conversationId){
-    _conversationRepo.requestConversationMessages(conversationId);
+  String? _errorMessage;
+  bool _isLoading = false;
+
+  String? get errorMessage => _errorMessage;
+  bool get isLoading => _isLoading;
+
+  void _setError(String? error) {
+    _errorMessage = error;
+    notifyListeners();
   }
 
-  Stream<List<Message>> getConversationMessages() => _conversationRepo.getConversationMessages();
+  void _setLoading(bool isLoading) {
+    _isLoading = isLoading;
+    notifyListeners();
+  }
 
+  void requestUserConversation() {
+    if (_authRepo.currentUser != null) {
+      _conversationRepo.requestUserConversations(_authRepo.currentUser!.id);
+    }
+  }
+
+  List<Conversation> get userConversations => _conversations;
 }

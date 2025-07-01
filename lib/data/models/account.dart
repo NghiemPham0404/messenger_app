@@ -1,24 +1,34 @@
-class UserOut{
-  int id;
-  String name;
-  String email;
-  String ?avatar;
+import 'package:json_annotation/json_annotation.dart';
 
-  UserOut(
-    {
-      required this.id, 
-      required this.name, 
-      required this.email,
-      this.avatar
-    }
-  );
+part 'account.g.dart';
 
-  factory UserOut.fromJson(Map<String, dynamic> map){
-      return UserOut(
-          id : map['id'],
-          name : map['name'],
-          email : map['email'],
-          avatar: map['avatar']?? "https://api.dicebear.com/9.x/initials/svg?seed=${map['name']}&backgoundType=gradientLinear",
-      );
-  }
+@JsonSerializable()
+class SignUpModel {
+  final String email;
+  final String name;
+  final String password;
+
+  SignUpModel({
+    required this.email,
+    required this.name,
+    required this.password,
+  });
+
+  factory SignUpModel.fromJson(Map<String, dynamic> json) =>
+      _$SignUpModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SignUpModelToJson(this);
+}
+
+@JsonSerializable()
+class LoginModel {
+  final String email;
+  final String password;
+
+  LoginModel({required this.email, required this.password});
+
+  factory LoginModel.fromJson(Map<String, dynamic> json) =>
+      _$LoginModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LoginModelToJson(this);
 }

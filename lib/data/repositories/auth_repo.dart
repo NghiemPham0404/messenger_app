@@ -1,35 +1,56 @@
 import 'dart:async';
 
-import 'package:chatting_app/data/datasource/auth_source.dart';
-import 'package:chatting_app/data/models/account.dart';
-import 'package:chatting_app/data/response/auth_response.dart';
+import 'package:chatting_app/data/models/user.dart';
+import 'package:chatting_app/data/network/api_client.dart';
+import 'package:chatting_app/data/network/auth_api.dart';
+import 'package:chatting_app/data/responses/auth_response.dart';
+import 'package:chatting_app/data/responses/object_response.dart';
+import 'package:chatting_app/util/web_socket_service.dart';
+import '../models/account.dart';
 
 class AuthRepo {
-  final AuthSource _authSource = AuthSource();
-  final StreamController<UserOut> _userOutStream = StreamController.broadcast();
-  final StreamController<AuthResponse> _authResponse = StreamController.broadcast();
+  static final AuthApiClient _authApiClient = AuthApiClient();
+  static final ApiClient _apiClient = ApiClient();
+  static final AuthApi _authApi = _authApiClient.getAuthApi();
 
-  Future<void> login(String email, String password) async{
-    if(!_authResponse.isClosed){
-        await _authSource.login(email, password).then((data){
-        if(data!=null) _authResponse.add(data);
+  AuthRepo.internal();
+
+  static final AuthRepo _instance = AuthRepo.internal();
+
+  factory AuthRepo() => _instance;
+
+  final StreamController<User?> _userOutStream = StreamController.broadcast();
+
+  User? _currentUser;
+
+  Stream<User?> get currentUserStream => _userOutStream.stream;
+
+  User? get currentUser => _currentUser;
+
+  Future<AuthResponse?> login(LoginModel loginModel) async {
+    return await _authApi.login(loginModel);
+  }
+
+  void initAPIClient(String accessToken) {
+    _apiClient.initialize(accessToken);
+  }
+
+  void requestGetCurrentUser(String accessToken) async {
+    // init api client once when user login successfully
+    initAPIClient(accessToken);
+
+    if (!_userOutStream.isClosed) {
+      await _authApi.getCurrentUser('Bearer ${accessToken}').then((data) {
+        _userOutStream.add(data.result!);
+        _currentUser = data.result;
+
+        final webSocketService = WebSocketService();
+        webSocketService.connect(data.result!.id, accessToken);
       });
     }
   }
 
-  Future<void> requestGetCurrentUser() async{
-    if(!_userOutStream.isClosed){
-      await _authSource.getCurrentUser().then((data){
-        if (data != null) _userOutStream.add(data);
-      });
-    }
-  }
-
-  Stream<AuthResponse> getAuthReponse(){
-    return _authResponse.stream;
-  }
-
-  Stream<UserOut> getCurrentUser(){
-    return _userOutStream.stream;
+  Future<ObjectResponse<User>> signUp(SignUpModel signUpBody) async {
+    return await _authApi.signUp(signUpBody);
   }
 }

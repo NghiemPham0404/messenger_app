@@ -1,23 +1,249 @@
+import 'dart:async';
+
+import 'package:chatting_app/data/models/conversation.dart';
+import 'package:chatting_app/data/models/message.dart';
+import 'package:chatting_app/data/models/sender.dart';
+import 'package:chatting_app/data/repositories/auth_repo.dart';
+import 'package:chatting_app/data/repositories/conversation_repo.dart';
 import 'package:chatting_app/data/repositories/message_repo.dart';
+import 'package:chatting_app/util/format_readable_date.dart';
+import 'package:flutter/cupertino.dart';
 
-class ChatViewModel {
-  static final MessageRepo messageRepo = MessageRepo();
+class ChatViewModel extends ChangeNotifier {
+  final MessageRepo messageRepo = MessageRepo();
+  final ConversationRepo _conversationRepo = ConversationRepo();
+  final AuthRepo _authRepo = AuthRepo();
 
-  ChatViewModel.internal();
+  late final Conversation _conversation;
+  Conversation? get conversation => _conversation;
 
-  static final ChatViewModel _instance = ChatViewModel.internal();
+  StreamSubscription? _messageSubscription;
 
-  factory ChatViewModel() => _instance;
+  int get userId => _authRepo.currentUser!.id;
+  int? groupId;
+  int? otherUserId;
 
-  void sendMessage(int userId, int conversationId, String messageContent){
-    messageRepo.createMesssage(userId, conversationId, messageContent);
+  List<Message> _messages = [];
+  List<Message> get messages => _messages;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  ChatViewModel(Conversation conversation) {
+    _conversation = conversation;
+    if (conversation.groupId != null) {
+      groupId = conversation.groupId!;
+    }
+
+    if (conversation.receiverId != null) {
+      otherUserId =
+          (conversation.userId == userId)
+              ? conversation.receiverId!
+              : conversation.userId;
+    }
   }
 
-  void editMessage(int messageId, String messageContent){
-    messageRepo.updateMesssage(messageId, messageContent);
+  void initialize() {
+    // 1. Start listening to the stream for incoming messages
+    _listenToMessageStream();
+
+    // 2. Request the initial batch of messages for the specific conversation
+    requestMessages();
   }
 
-  void deleteMessage(int messageId){
-    messageRepo.deleteMesssage(messageId);
+  void _listenToMessageStream() {
+    _setLoading(true);
+    _messageSubscription?.cancel();
+    _messageSubscription = _conversationRepo.conversationMessage.listen(
+      (newMessage) {
+        _messages = newMessage;
+        _setLoading(false);
+        _setError(null);
+      },
+      onError: (error) {
+        _setError("[Messages] : ${error.toString()}");
+        _setLoading(false);
+      },
+    );
+  }
+
+  void _setError(String? message) {
+    _errorMessage = message;
+    notifyListeners();
+  }
+
+  void _setLoading(bool isLoading) {
+    _isLoading = isLoading;
+    notifyListeners();
+  }
+
+  void requestMessages() {
+    _setLoading(true);
+    if (otherUserId != null) {
+      _conversationRepo.requestDirectConversation(
+        userId: userId,
+        otherUserId: otherUserId!,
+      );
+    }
+    if (groupId != null) {
+      _conversationRepo.requestGroupConversation(groupId: groupId!);
+    }
+  }
+
+  void requestOlderMessages() {
+    _setLoading(true);
+    if (otherUserId != null) {
+      _conversationRepo.requestOlderDirectConversation(
+        userId: _authRepo.currentUser!.id,
+        otherUserId: otherUserId!,
+      );
+    }
+    if (groupId != null) {
+      _conversationRepo.requestOlderGroupConversation(groupId!);
+    }
+  }
+
+  void sendMessage(String? text, String? file, List<String>? images) {
+    String currentTimeIsoString = toIsoStringWithLocal(DateTime.now());
+    if (groupId != null) {
+      sendGroupMessage(
+        userId: userId,
+        groupId: groupId!,
+        timeStamp: currentTimeIsoString,
+        messageContent: text,
+        file: file,
+        images: images,
+      );
+    }
+    if (otherUserId != null) {
+      sendDirectMessage(
+        userId: userId,
+        receiverId: otherUserId!,
+        timeStamp: currentTimeIsoString,
+        messageContent: text,
+        file: file,
+        images: images,
+      );
+    }
+    displaySenddingMessage(text, file, images, currentTimeIsoString);
+  }
+
+  void displaySenddingMessage(
+    String? text,
+    String? file,
+    List<String>? images,
+    String currentTimeIsoString,
+  ) {
+    // # create fake message to display faster
+    final fakeMessage = Message(
+      id: "temp-$currentTimeIsoString",
+      timestamp: currentTimeIsoString,
+      userId: userId,
+      content: text,
+      file: file,
+      images: images,
+      groupId: groupId,
+      receiverId: otherUserId,
+      sender: Sender(
+        _authRepo.currentUser!.id,
+        _authRepo.currentUser!.name,
+        _authRepo.currentUser!.avatar!,
+      ),
+    );
+    _messages.insert(0, fakeMessage);
+    notifyListeners();
+  }
+
+  Future<void> updateNewMessage(Message message) async {
+    final incomingTime = DateTime.parse(message.timestamp).toUtc();
+
+    final index = _messages.indexWhere(
+      (msg) =>
+          msg.id.startsWith("temp") &&
+          DateTime.parse(
+            msg.timestamp,
+          ).toUtc().isAtSameMomentAs(incomingTime) &&
+          msg.userId == message.userId,
+    );
+
+    if (index != -1) {
+      _messages.removeAt(index);
+    }
+
+    debugPrint("${_messages.length}");
+
+    _conversationRepo.addMessage(message);
+
+    notifyListeners();
+  }
+
+  void updateErrorMessage(String id) {
+    final index = _messages.indexWhere((msg) => msg.id == id);
+
+    if (index != -1) {
+      _messages[index].id = "error-${_messages[index].timestamp}";
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> sendDirectMessage({
+    required int userId,
+    required int receiverId,
+    required String timeStamp,
+    String? messageContent,
+    String? file,
+    List<String>? images,
+  }) async {
+    final messageCreate = DirectMessageCreate(
+      receiverId: receiverId,
+      userId: userId,
+      timestamp: timeStamp,
+      content: messageContent,
+      file: file,
+      images: images,
+    );
+    final message = await messageRepo.sendDirectMesssage(messageCreate);
+    if (message != null) {
+      updateNewMessage(message);
+    } else {
+      updateErrorMessage("temp-$timeStamp");
+      _setError("send error");
+    }
+  }
+
+  Future<void> sendGroupMessage({
+    required int userId,
+    required int groupId,
+    required String timeStamp,
+    String? messageContent,
+    String? file,
+    List<String>? images,
+  }) async {
+    final groupMessageCreate = GroupMessageCreate(
+      groupId: groupId,
+      userId: userId,
+      timestamp: timeStamp,
+      content: messageContent,
+      file: file,
+      images: images,
+    );
+
+    final message = await messageRepo.sendGroupMessage(groupMessageCreate);
+    if (message != null) {
+      updateNewMessage(message);
+    } else {
+      updateErrorMessage("temp-$timeStamp");
+      _setError("send error");
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageSubscription?.cancel();
+    super.dispose();
   }
 }

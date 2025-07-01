@@ -1,0 +1,22 @@
+import 'package:chatting_app/data/models/message.dart';
+import 'package:chatting_app/data/responses/object_response.dart';
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+part 'message_api.g.dart';
+
+@RestApi()
+abstract class MessageApi {
+  factory MessageApi(Dio dio, {String baseUrl}) = _MessageApi;
+
+  @POST("/groups/{group_id}/messages")
+  Future<ObjectResponse<Message>> postGroupMessage(
+    @Path("group_id") int groupId,
+    @Body() GroupMessageCreate groupMessage,
+  );
+
+  @POST("/messages")
+  Future<ObjectResponse<Message>> postDirectMessage(
+    @Body() DirectMessageCreate directMessage,
+  );
+}
