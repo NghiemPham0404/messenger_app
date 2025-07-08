@@ -53,4 +53,36 @@ class LoginViewModel extends ChangeNotifier {
     _isLoading = isLoading;
     notifyListeners();
   }
+
+  void loginByGoogle() async {
+    _setLoading(true);
+    try {
+      final data = await _authRepo.signInWithGoogle();
+
+      if (data != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("access_token", data.accessToken);
+        await prefs.setString("refresh_token", data.refreshToken);
+
+        _authRepo.requestGetCurrentUser(data.accessToken);
+      }
+    } on DioException catch (e) {
+      final errorDetail = e.response?.data['detail'] ?? e.message;
+      debugPrint("[Login Google] DioException: $errorDetail");
+      _setError("Login failed: $errorDetail");
+    } catch (e) {
+      debugPrint("[Login Google] error: $e");
+      _setError("Unexpected error: $e");
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void signOutGoogle() async {
+    try {
+      _authRepo.signOutGoogle();
+    } catch (error) {
+      debugPrint("Sign out error: $error");
+    }
+  }
 }

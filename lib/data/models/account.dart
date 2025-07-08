@@ -32,3 +32,26 @@ class LoginModel {
 
   Map<String, dynamic> toJson() => _$LoginModelToJson(this);
 }
+
+@JsonSerializable()
+class GoogleLoginModel {
+  final String email;
+  final String username;
+  final String avatar;
+  final String provider = "google";
+
+  @JsonKey(name: "provider_id")
+  final String providerId;
+
+  GoogleLoginModel({
+    required this.email,
+    required this.username,
+    required this.avatar,
+    required this.providerId,
+  });
+
+  factory GoogleLoginModel.fromJson(Map<String, dynamic> json) =>
+      _$GoogleLoginModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$GoogleLoginModelToJson(this);
+}

@@ -109,7 +109,7 @@ class LoginPageState extends State<LoginPage> {
             ],
           ),
           SizedBox(height: 24),
-          _getOtherLoginMethods(),
+          _getOtherLoginMethods(viewModel),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -231,24 +231,28 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _getOtherLoginMethods() {
+  Widget _getOtherLoginMethods(LoginViewModel viewModel) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 8,
       children: [
-        SizedBox(
-          width: 48,
-          height: 48,
-          child: Container(
-            padding: EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: Theme.of(context).colorScheme.outline),
-            ),
-
-            child: SvgPicture.asset(
-              'assets/images/google-color-svgrepo-com.svg',
+        GestureDetector(
+          onTap: () => handleGoogleSignIn(viewModel),
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              child: SvgPicture.asset(
+                'assets/images/google-color-svgrepo-com.svg',
+              ),
             ),
           ),
         ),
@@ -328,5 +332,9 @@ class LoginPageState extends State<LoginPage> {
   void demo() {
     _emailController.text = dotenv.env['username'] ?? 'alice.smit@gmail.com';
     _passwordController.text = "123123";
+  }
+
+  void handleGoogleSignIn(LoginViewModel viewModel) {
+    viewModel.loginByGoogle();
   }
 }

@@ -3,6 +3,7 @@ import 'package:chatting_app/ui/views/contacts/contacts.dart';
 import 'package:chatting_app/ui/views/conversations/conversations.dart';
 import 'package:chatting_app/ui/views/login/login.dart';
 import 'package:chatting_app/ui/views/settings/settings.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -10,6 +11,7 @@ import 'package:provider/provider.dart';
 
 void main() async {
   await dotenv.load();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

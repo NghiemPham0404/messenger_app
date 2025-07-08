@@ -49,3 +49,5 @@ app.*.map.json
 
 # generated files
 *.g.dart
+android/app/google-services.json
+firebase.json
