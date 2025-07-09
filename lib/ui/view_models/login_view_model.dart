@@ -25,8 +25,8 @@ class LoginViewModel extends ChangeNotifier {
         _authRepo.requestGetCurrentUser(data.accessToken);
       }
     } on DioException catch (e) {
+      debugPrint("[Login] DioException: $e");
       final errorDetail = e.response?.data['detail'] ?? e.message;
-      debugPrint("[Login] DioException: $errorDetail");
       _setError("Login failed: $errorDetail");
     } catch (e) {
       debugPrint("[Login] error: $e");

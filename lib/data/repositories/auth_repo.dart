@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:chatting_app/data/models/user.dart';
 import 'package:chatting_app/data/network/api_client.dart';
-import 'package:chatting_app/data/network/auth_api.dart';
+import 'package:chatting_app/data/services/auth_service.dart';
 import 'package:chatting_app/data/responses/auth_response.dart';
 import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:chatting_app/util/web_socket_service.dart';
@@ -14,7 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart'
 class AuthRepo {
   static final AuthApiClient _authApiClient = AuthApiClient();
   static final ApiClient _apiClient = ApiClient();
-  static final AuthApi _authApi = _authApiClient.getAuthApi();
+  static final AuthService _authApi = _authApiClient.getAuthApi();
 
   AuthRepo.internal();
 
@@ -55,6 +55,12 @@ class AuthRepo {
 
   Future<ObjectResponse<User>> signUp(SignUpModel signUpBody) async {
     return await _authApi.signUp(signUpBody);
+  }
+
+  void logOut() {
+    _currentUser = null;
+    _userOutStream.add(_currentUser);
+    _apiClient.destroy();
   }
 
   /// GOOGLE SIGN IN PROPERTY

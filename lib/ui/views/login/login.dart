@@ -3,6 +3,7 @@ import 'package:chatting_app/ui/view_models/contact_view_model.dart';
 import 'package:chatting_app/ui/view_models/conversations_view_model.dart';
 import 'package:chatting_app/ui/view_models/group_view_model.dart';
 import 'package:chatting_app/ui/view_models/login_view_model.dart';
+import 'package:chatting_app/ui/view_models/setting_view_model.dart';
 import 'package:chatting_app/ui/views/signup/signup.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -310,6 +311,7 @@ class LoginPageState extends State<LoginPage> {
               ChangeNotifierProvider(create: (_) => ConversationsViewModel()),
               ChangeNotifierProvider(create: (_) => ContactViewModel()),
               ChangeNotifierProvider(create: (_) => GroupViewModel()),
+              ChangeNotifierProvider(create: (_) => SettingsViewModel()),
             ],
             child: const MyHomePage(),
           );
