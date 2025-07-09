@@ -14,7 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart'
 class AuthRepo {
   static final AuthApiClient _authApiClient = AuthApiClient();
   static final ApiClient _apiClient = ApiClient();
-  static final AuthService _authApi = _authApiClient.getAuthApi();
+  static final AuthService _authService = _authApiClient.getAuthApi();
 
   AuthRepo.internal();
 
@@ -31,30 +31,33 @@ class AuthRepo {
   User? get currentUser => _currentUser;
 
   Future<AuthResponse?> login(LoginModel loginModel) async {
-    return await _authApi.login(loginModel);
+    return await _authService.login(loginModel);
   }
 
   void initAPIClient(String accessToken) {
     _apiClient.initialize(accessToken);
   }
 
-  void requestGetCurrentUser(String accessToken) async {
+  Future<User?> requestGetCurrentUser(String accessToken) async {
     // init api client once when user login successfully
     initAPIClient(accessToken);
 
     if (!_userOutStream.isClosed) {
-      await _authApi.getCurrentUser('Bearer ${accessToken}').then((data) {
-        _userOutStream.add(data.result!);
-        _currentUser = data.result;
+      final user = await _authService.getCurrentUser('Bearer $accessToken');
+      if (user != null) {
+        _userOutStream.add(user.result!);
+        _currentUser = user.result;
 
         final webSocketService = WebSocketService();
-        webSocketService.connect(data.result!.id, accessToken);
-      });
+        webSocketService.connect(user.result!.id, accessToken);
+      }
+      return user!.result;
     }
+    return null;
   }
 
   Future<ObjectResponse<User>> signUp(SignUpModel signUpBody) async {
-    return await _authApi.signUp(signUpBody);
+    return await _authService.signUp(signUpBody);
   }
 
   void logOut() {
@@ -95,10 +98,15 @@ class AuthRepo {
       providerId: gUser.id,
     );
 
-    return await _authApi.loginByGoogle(googleLoginModel);
+    return await _authService.loginByGoogle(googleLoginModel);
   }
 
   Future<void> signOutGoogle() async {
     await _googleSignIn.signOut();
+  }
+
+  Future<AuthResponse?> refreshToken(String refreshToken) async {
+    final refreshTokenBody = RefreshTokenModel(refreshToken: refreshToken);
+    return await _authService.refreshToken(refreshTokenBody);
   }
 }

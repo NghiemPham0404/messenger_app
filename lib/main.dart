@@ -26,18 +26,21 @@ class MyApp extends StatelessWidget {
       create: (_) => ThemeViewModel(),
       child: Consumer<ThemeViewModel>(
         builder:
-            (context, viewModel, child) => MaterialApp(
-              title: 'Messenger',
-              theme: _getBrightThemeData(context, viewModel),
-              darkTheme: _getDarkThemeData(context, viewModel),
-              home: SafeArea(
-                child: ChangeNotifierProvider(
-                  create: (_) => LoginViewModel(),
-                  child: const LoginPage(),
-                ),
-              ),
-              debugShowCheckedModeBanner: false,
-            ),
+            (context, viewModel, child) =>
+                viewModel.isLoaded
+                    ? MaterialApp(
+                      title: 'Messenger',
+                      theme: _getBrightThemeData(context, viewModel),
+                      darkTheme: _getDarkThemeData(context, viewModel),
+                      home: SafeArea(
+                        child: ChangeNotifierProvider(
+                          create: (_) => LoginViewModel(),
+                          child: const LoginPage(),
+                        ),
+                      ),
+                      debugShowCheckedModeBanner: false,
+                    )
+                    : SizedBox.shrink(),
       ),
     );
   }

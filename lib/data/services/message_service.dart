@@ -3,11 +3,15 @@ import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-part 'message_api.g.dart';
+part 'message_service.g.dart';
 
 @RestApi()
 abstract class MessageService {
-  factory MessageService(Dio dio, {String baseUrl}) = _MessageApi;
+  factory MessageService(
+    Dio dio, {
+    String baseUrl,
+    ParseErrorLogger errorLogger,
+  }) = _MessageService;
 
   @POST("/groups/{group_id}/messages")
   Future<ObjectResponse<Message>> postGroupMessage(

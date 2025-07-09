@@ -10,6 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LoginViewModel extends ChangeNotifier {
   final AuthRepo _authRepo = AuthRepo();
 
+  LoginViewModel() {
+    reLogin();
+  }
+
   Future<void> login(String email, String password) async {
     _setLoading(true);
     try {
@@ -83,6 +87,43 @@ class LoginViewModel extends ChangeNotifier {
       _authRepo.signOutGoogle();
     } catch (error) {
       debugPrint("Sign out error: $error");
+    }
+  }
+
+  Future<void> reLogin() async {
+    _setLoading(true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString("access_token");
+      final refreshToken = prefs.getString("refresh_token");
+
+      if (accessToken == null || refreshToken == null) {
+        return;
+      }
+
+      // Try to get current user with existing access token
+      final user = await _authRepo.requestGetCurrentUser(accessToken);
+
+      if (user == null) {
+        // Try refresh token if access token is invalid
+        final newTokens = await _authRepo.refreshToken(refreshToken);
+
+        if (newTokens != null) {
+          await prefs.setString("access_token", newTokens.accessToken);
+          await prefs.setString("refresh_token", newTokens.refreshToken);
+
+          await _authRepo.requestGetCurrentUser(newTokens.accessToken);
+        }
+      }
+    } on DioException catch (e) {
+      final detail = e.response?.data['detail'] ?? e.message;
+      debugPrint("[reLogin] DioException: $detail");
+      _setError("Re-login failed: $detail");
+    } catch (e) {
+      debugPrint("[reLogin] Unexpected error: $e");
+      _setError("Unexpected error during re-login.");
+    } finally {
+      _setLoading(false);
     }
   }
 }

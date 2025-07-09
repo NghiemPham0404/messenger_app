@@ -5,11 +5,15 @@ import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 import 'package:chatting_app/data/models/conversation.dart';
 
-part 'conversation_api.g.dart';
+part 'conversation_service.g.dart';
 
 @RestApi()
 abstract class ConversationService {
-  factory ConversationService(Dio dio) = _ConversationApi;
+  factory ConversationService(
+    Dio dio, {
+    String baseUrl,
+    ParseErrorLogger errorLogger,
+  }) = _ConversationService;
 
   @GET("/users/{userId}/conversations")
   Future<List<Conversation>> getUserConversations(@Path("userId") int userId);

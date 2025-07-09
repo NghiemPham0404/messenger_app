@@ -55,3 +55,16 @@ class GoogleLoginModel {
 
   Map<String, dynamic> toJson() => _$GoogleLoginModelToJson(this);
 }
+
+@JsonSerializable()
+class RefreshTokenModel {
+  @JsonKey(name: "refresh_token")
+  final String refreshToken;
+
+  RefreshTokenModel({required this.refreshToken});
+
+  factory RefreshTokenModel.fromJson(Map<String, dynamic> json) =>
+      _$RefreshTokenModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RefreshTokenModelToJson(this);
+}

@@ -5,19 +5,20 @@ import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 import 'package:chatting_app/data/responses/auth_response.dart';
 
-part 'auth_api.g.dart';
+part 'auth_service.g.dart';
 
 //  dart run build_runner build --delete-conflicting-outputs
 
 @RestApi()
 abstract class AuthService {
-  factory AuthService(Dio dio, {String baseUrl}) = _AuthApi;
+  factory AuthService(Dio dio, {String baseUrl, ParseErrorLogger errorLogger}) =
+      _AuthService;
 
   @POST("/auth/token")
   Future<AuthResponse> login(@Body() LoginModel body);
 
   @GET("/info")
-  Future<ObjectResponse<User>> getCurrentUser(
+  Future<ObjectResponse<User>?> getCurrentUser(
     @Header("Authorization") String token,
   );
 
@@ -26,4 +27,7 @@ abstract class AuthService {
 
   @POST("/auth/google")
   Future<AuthResponse> loginByGoogle(@Body() GoogleLoginModel body);
+
+  @POST("/auth/refresh")
+  Future<AuthResponse> refreshToken(@Body() RefreshTokenModel body);
 }
