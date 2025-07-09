@@ -6,7 +6,10 @@ import 'package:chatting_app/data/network/auth_api.dart';
 import 'package:chatting_app/data/responses/auth_response.dart';
 import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:chatting_app/util/web_socket_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/account.dart';
+import 'package:firebase_auth/firebase_auth.dart'
+    show FirebaseAuth, GoogleAuthProvider;
 
 class AuthRepo {
   static final AuthApiClient _authApiClient = AuthApiClient();
@@ -52,5 +55,44 @@ class AuthRepo {
 
   Future<ObjectResponse<User>> signUp(SignUpModel signUpBody) async {
     return await _authApi.signUp(signUpBody);
+  }
+
+  /// GOOGLE SIGN IN PROPERTY
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  /// sign in with Google
+  Future<AuthResponse?> signInWithGoogle() async {
+    // begin interactive sign process (show popup dialog with google account selections)
+    final GoogleSignInAccount? gUser = await _googleSignIn.signIn();
+
+    if (gUser == null) {
+      throw {"detail": "cancel"};
+    }
+
+    final GoogleSignInAuthentication gAuth = await gUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: gAuth.accessToken,
+      idToken: gAuth.idToken,
+    );
+
+    await _firebaseAuth.signInWithCredential(credential);
+
+    GoogleLoginModel googleLoginModel = GoogleLoginModel(
+      email: gUser.email,
+      username: gUser.displayName ?? gUser.email,
+      avatar:
+          gUser.photoUrl ??
+          "https://api.dicebear.com/9.x/initials/png?seed=${gUser.email}&backgroundType=gradientLinear",
+      providerId: gUser.id,
+    );
+
+    return await _authApi.loginByGoogle(googleLoginModel);
+  }
+
+  Future<void> signOutGoogle() async {
+    await _googleSignIn.signOut();
   }
 }

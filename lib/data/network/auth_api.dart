@@ -23,4 +23,7 @@ abstract class AuthApi {
 
   @POST("/auth/sign-up")
   Future<ObjectResponse<User>> signUp(@Body() SignUpModel signUpBody);
+
+  @POST("/auth/google")
+  Future<AuthResponse> loginByGoogle(@Body() GoogleLoginModel body);
 }
