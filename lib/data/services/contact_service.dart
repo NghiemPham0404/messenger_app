@@ -11,8 +11,8 @@ part 'contact_api.g.dart';
 //dart pub run build_runner build
 
 @RestApi()
-abstract class ContactApi {
-  factory ContactApi(Dio dio, {String baseUrl}) = _ContactApi;
+abstract class ContactService {
+  factory ContactService(Dio dio, {String baseUrl}) = _ContactApi;
 
   @GET("/contacts")
   Future<ListResponse<Contact>> fetchContacts(@Query("type") String type);

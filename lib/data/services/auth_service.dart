@@ -10,8 +10,8 @@ part 'auth_api.g.dart';
 //  dart run build_runner build --delete-conflicting-outputs
 
 @RestApi()
-abstract class AuthApi {
-  factory AuthApi(Dio dio, {String baseUrl}) = _AuthApi;
+abstract class AuthService {
+  factory AuthService(Dio dio, {String baseUrl}) = _AuthApi;
 
   @POST("/auth/token")
   Future<AuthResponse> login(@Body() LoginModel body);

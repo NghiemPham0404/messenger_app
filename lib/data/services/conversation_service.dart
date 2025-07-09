@@ -8,8 +8,8 @@ import 'package:chatting_app/data/models/conversation.dart';
 part 'conversation_api.g.dart';
 
 @RestApi()
-abstract class ConversationApi {
-  factory ConversationApi(Dio dio) = _ConversationApi;
+abstract class ConversationService {
+  factory ConversationService(Dio dio) = _ConversationApi;
 
   @GET("/users/{userId}/conversations")
   Future<List<Conversation>> getUserConversations(@Path("userId") int userId);

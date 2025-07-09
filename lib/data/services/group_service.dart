@@ -6,8 +6,8 @@ import 'package:retrofit/retrofit.dart';
 part "group_api.g.dart";
 
 @RestApi()
-abstract class GroupAPI {
-  factory GroupAPI(Dio dio) = _GroupAPI;
+abstract class GroupService {
+  factory GroupService(Dio dio) = _GroupAPI;
 
   @GET("/groups")
   Future<ListResponse<Group>> getGroups(

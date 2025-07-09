@@ -2,18 +2,18 @@
 
 import 'package:chatting_app/data/models/groups.dart';
 import 'package:chatting_app/data/network/api_url_provider.dart';
-import 'package:chatting_app/data/network/auth_api.dart';
-import 'package:chatting_app/data/network/contact_api.dart';
-import 'package:chatting_app/data/network/group_api.dart';
-import 'package:chatting_app/data/network/message_api.dart';
-import 'package:chatting_app/data/network/user_api.dart';
+import 'package:chatting_app/data/services/auth_service.dart';
+import 'package:chatting_app/data/services/contact_service.dart';
+import 'package:chatting_app/data/services/group_service.dart';
+import 'package:chatting_app/data/services/message_service.dart';
+import 'package:chatting_app/data/services/user_service.dart';
 import 'package:dio/dio.dart';
-import 'package:chatting_app/data/network/conversation_api.dart';
+import 'package:chatting_app/data/services/conversation_service.dart';
 
 class AuthApiClient {
   static final ApiUrlProvider _apiEndpointProvider = ApiUrlProvider();
   late final Dio dio;
-  AuthApi? _authApi;
+  AuthService? _authApi;
 
   AuthApiClient.internal() {
     dio = Dio(
@@ -28,8 +28,8 @@ class AuthApiClient {
 
   factory AuthApiClient() => _instance;
 
-  AuthApi getAuthApi() {
-    return _authApi ?? AuthApi(dio);
+  AuthService getAuthApi() {
+    return _authApi ?? AuthService(dio);
   }
 }
 
@@ -43,13 +43,13 @@ class ApiClient {
   }
 
   final ApiUrlProvider _apiEndpointProvider = ApiUrlProvider();
-  late Dio _dio;
+  Dio? _dio;
 
-  late ContactApi _contactApi;
-  late ConversationApi _conversationApi;
-  late GroupAPI _groupApi;
-  late MessageApi _messageApi;
-  late UserApi _userApi;
+  ContactService? _contactApi;
+  ConversationService? _conversationApi;
+  GroupService? _groupApi;
+  MessageService? _messageApi;
+  UserService? _userApi;
 
   void initialize(String accessToken) {
     _dio = Dio(
@@ -61,20 +61,54 @@ class ApiClient {
         },
       ),
     );
-    _contactApi = ContactApi(_dio);
-    _conversationApi = ConversationApi(_dio);
-    _groupApi = GroupAPI(_dio);
-    _messageApi = MessageApi(_dio);
-    _userApi = UserApi(_dio);
+    _contactApi = ContactService(_dio!);
+    _conversationApi = ConversationService(_dio!);
+    _groupApi = GroupService(_dio!);
+    _messageApi = MessageService(_dio!);
+    _userApi = UserService(_dio!);
   }
 
-  ContactApi get contactApi => _contactApi;
+  void destroy() {
+    _dio = null;
+    _contactApi = null;
+    _conversationApi = null;
+    _groupApi = null;
+    _messageApi = null;
+    _userApi = null;
+  }
 
-  ConversationApi get conversationApi => _conversationApi;
+  ContactService get contactApi {
+    if (_contactApi == null) {
+      throw Exception('not initialized. Call initialize() first.');
+    }
+    return _contactApi!;
+  }
 
-  GroupAPI get groupApi => _groupApi;
+  ConversationService get conversationApi {
+    if (_contactApi == null) {
+      throw Exception('not initialized. Call initialize() first.');
+    }
+    return _conversationApi!;
+  }
 
-  MessageApi get messageApi => _messageApi;
+  GroupService get groupApi {
+    if (_contactApi == null) {
+      throw Exception('not initialized. Call initialize() first.');
+    }
+    return _groupApi!;
+  }
 
-  UserApi get userApi => _userApi;
+  MessageService get messageApi {
+    if (_contactApi == null) {
+      throw Exception('not initialized. Call initialize() first.');
+    }
+    return _messageApi!;
+  }
+
+  UserService get userApi {
+    if (_contactApi == null) {
+      throw Exception('not initialized. Call initialize() first.');
+    }
+    return _userApi!;
+  }
 }

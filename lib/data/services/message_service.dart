@@ -6,8 +6,8 @@ import 'package:retrofit/retrofit.dart';
 part 'message_api.g.dart';
 
 @RestApi()
-abstract class MessageApi {
-  factory MessageApi(Dio dio, {String baseUrl}) = _MessageApi;
+abstract class MessageService {
+  factory MessageService(Dio dio, {String baseUrl}) = _MessageApi;
 
   @POST("/groups/{group_id}/messages")
   Future<ObjectResponse<Message>> postGroupMessage(

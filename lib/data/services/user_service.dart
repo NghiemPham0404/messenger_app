@@ -9,8 +9,8 @@ part 'user_api.g.dart';
 // dart run build_runner build --delete-conflicting-outputs
 
 @RestApi()
-abstract class UserApi {
-  factory UserApi(Dio dio) = _UserApi;
+abstract class UserService {
+  factory UserService(Dio dio) = _UserApi;
 
   @GET("/users/")
   Future<ListResponse<UserExtended>> getUsers(
