@@ -1,8 +1,9 @@
 import 'package:chatting_app/ui/view_models/login_view_model.dart';
+import 'package:chatting_app/ui/view_models/theme_view_model.dart';
 import 'package:chatting_app/ui/views/contacts/contacts.dart';
 import 'package:chatting_app/ui/views/conversations/conversations.dart';
 import 'package:chatting_app/ui/views/login/login.dart';
-import 'package:chatting_app/ui/views/settings/settings.dart';
+import 'package:chatting_app/ui/views/settings/setting.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,35 +22,52 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Messenger',
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedItemColor: const Color.fromRGBO(76, 175, 80, 1),
-        ),
-        primaryColor: Colors.green,
-        textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Color.fromRGBO(28, 28, 28, 1.0)),
-        ),
+    return ChangeNotifierProvider(
+      create: (_) => ThemeViewModel(),
+      child: Consumer<ThemeViewModel>(
+        builder:
+            (context, viewModel, child) => MaterialApp(
+              title: 'Messenger',
+              theme: _getBrightThemeData(context, viewModel),
+              darkTheme: _getDarkThemeData(context, viewModel),
+              home: SafeArea(
+                child: ChangeNotifierProvider(
+                  create: (_) => LoginViewModel(),
+                  child: const LoginPage(),
+                ),
+              ),
+              debugShowCheckedModeBanner: false,
+            ),
       ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: Colors.green,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedItemColor: Colors.green,
-        ),
-        scaffoldBackgroundColor: Color.fromRGBO(28, 28, 28, 1.0),
-        textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+    );
+  }
+
+  ThemeData _getBrightThemeData(
+    BuildContext context,
+    ThemeViewModel themeViewModel,
+  ) {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: themeViewModel.currentBrightMode ?? Brightness.light,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: themeViewModel.primaryColor,
       ),
-      home: SafeArea(
-        child: ChangeNotifierProvider(
-          create: (_) => LoginViewModel(),
-          child: const LoginPage(),
-        ),
+      primaryColor: themeViewModel.primaryColor,
+      primaryColorDark: themeViewModel.primaryDarkColor,
+    );
+  }
+
+  ThemeData _getDarkThemeData(
+    BuildContext context,
+    ThemeViewModel themeViewModel,
+  ) {
+    return ThemeData(
+      brightness: themeViewModel.currentBrightMode ?? Brightness.dark,
+      primaryColor: themeViewModel.primaryColor,
+      primaryColorDark: themeViewModel.primaryDarkColor,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: themeViewModel.primaryColor,
       ),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -74,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          activeColor: Colors.green,
+          activeColor: Theme.of(context).primaryColor,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.chat_outlined),

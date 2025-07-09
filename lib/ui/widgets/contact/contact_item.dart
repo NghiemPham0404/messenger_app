@@ -70,7 +70,7 @@ class PendingRequestItem extends ContactItem {
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
             ),
             onPressed: () => accept(contact.id),

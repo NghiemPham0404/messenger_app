@@ -55,10 +55,17 @@ class MessageBubbleState extends State<MessageBubble> {
                 horizontal: 14.0,
               ),
               decoration: BoxDecoration(
-                color:
+                gradient:
                     isMe
-                        ? theme.primaryColor
-                        : theme.colorScheme.surfaceContainerHighest,
+                        ? LinearGradient(
+                          colors: [theme.primaryColor, theme.primaryColorDark],
+                        )
+                        : LinearGradient(
+                          colors: [
+                            theme.colorScheme.surfaceContainerHighest,
+                            theme.colorScheme.surfaceContainerHigh,
+                          ],
+                        ),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20.0),
                   topRight: const Radius.circular(20.0),
