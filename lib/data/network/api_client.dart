@@ -84,42 +84,52 @@ class ApiClient {
 
   ContactService get contactApi {
     if (_contactApi == null) {
-      throw Exception('not initialized. Call initialize() first.');
+      throw Exception(
+        'contact api service not initialized. Call initialize() first.',
+      );
     }
     return _contactApi!;
   }
 
   ConversationService get conversationApi {
-    if (_contactApi == null) {
-      throw Exception('not initialized. Call initialize() first.');
+    if (_conversationApi == null) {
+      throw Exception(
+        'conversation api not initialized. Call initialize() first.',
+      );
     }
     return _conversationApi!;
   }
 
   GroupService get groupApi {
-    if (_contactApi == null) {
-      throw Exception('not initialized. Call initialize() first.');
+    if (_groupApi == null) {
+      throw Exception('groupApi initialized. Call initialize() first.');
     }
     return _groupApi!;
   }
 
   MediaFileService get mediaFileApi {
     if (_mediaFileService == null) {
-      throw Exception('not initialized. Call initialize() first.');
+      throw Exception(
+        'mediaFile api service not initialized. Call initialize() first.',
+      );
     }
     return _mediaFileService!;
   }
 
   MessageService get messageApi {
-    if (_contactApi == null) {
-      throw Exception('not initialized. Call initialize() first.');
+    if (_messageApi == null) {
+      throw Exception(
+        'message api service not initialized. Call initialize() first.',
+      );
     }
     return _messageApi!;
   }
 
   UserService get userApi {
-    if (_contactApi == null) {
-      throw Exception('not initialized. Call initialize() first.');
+    if (_userApi == null) {
+      throw Exception(
+        'user api service not initialized. Call initialize() first.',
+      );
     }
     return _userApi!;
   }
