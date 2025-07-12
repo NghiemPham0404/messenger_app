@@ -5,6 +5,7 @@ import 'package:chatting_app/data/network/api_url_provider.dart';
 import 'package:chatting_app/data/services/auth_service.dart';
 import 'package:chatting_app/data/services/contact_service.dart';
 import 'package:chatting_app/data/services/group_service.dart';
+import 'package:chatting_app/data/services/media_file_service.dart';
 import 'package:chatting_app/data/services/message_service.dart';
 import 'package:chatting_app/data/services/user_service.dart';
 import 'package:dio/dio.dart';
@@ -48,6 +49,7 @@ class ApiClient {
   ContactService? _contactApi;
   ConversationService? _conversationApi;
   GroupService? _groupApi;
+  MediaFileService? _mediaFileService;
   MessageService? _messageApi;
   UserService? _userApi;
 
@@ -66,6 +68,8 @@ class ApiClient {
     _groupApi = GroupService(_dio!);
     _messageApi = MessageService(_dio!);
     _userApi = UserService(_dio!);
+
+    _initMediaFileService(accessToken);
   }
 
   void destroy() {
@@ -73,6 +77,7 @@ class ApiClient {
     _contactApi = null;
     _conversationApi = null;
     _groupApi = null;
+    _mediaFileService = null;
     _messageApi = null;
     _userApi = null;
   }
@@ -98,6 +103,13 @@ class ApiClient {
     return _groupApi!;
   }
 
+  MediaFileService get mediaFileApi {
+    if (_mediaFileService == null) {
+      throw Exception('not initialized. Call initialize() first.');
+    }
+    return _mediaFileService!;
+  }
+
   MessageService get messageApi {
     if (_contactApi == null) {
       throw Exception('not initialized. Call initialize() first.');
@@ -110,5 +122,18 @@ class ApiClient {
       throw Exception('not initialized. Call initialize() first.');
     }
     return _userApi!;
+  }
+
+  void _initMediaFileService(String accessToken) {
+    final mediaDio = Dio(
+      BaseOptions(
+        baseUrl: _apiEndpointProvider.baseUrl,
+        headers: {'Authorization': 'Bearer $accessToken'},
+      ),
+    );
+    mediaDio.interceptors.add(
+      LogInterceptor(responseBody: true, requestBody: true),
+    );
+    _mediaFileService = MediaFileService(mediaDio);
   }
 }

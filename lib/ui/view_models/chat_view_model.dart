@@ -1,18 +1,23 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:chatting_app/data/models/conversation.dart';
+import 'package:chatting_app/data/models/file_metadata.dart';
 import 'package:chatting_app/data/models/message.dart';
 import 'package:chatting_app/data/models/sender.dart';
 import 'package:chatting_app/data/repositories/auth_repo.dart';
 import 'package:chatting_app/data/repositories/conversation_repo.dart';
+import 'package:chatting_app/data/repositories/media_file_repo.dart';
 import 'package:chatting_app/data/repositories/message_repo.dart';
 import 'package:chatting_app/util/format_readable_date.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatViewModel extends ChangeNotifier {
   final MessageRepo messageRepo = MessageRepo();
   final ConversationRepo _conversationRepo = ConversationRepo();
   final AuthRepo _authRepo = AuthRepo();
+  final MediaFileRepo _mediaFileRepo = MediaFileRepo();
 
   late final Conversation _conversation;
   Conversation? get conversation => _conversation;
@@ -106,8 +111,33 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-  void sendMessage(String? text, String? file, List<String>? images) {
+  void requestSendMessage({String? text, FileMetadata? file}) async {
     String currentTimeIsoString = toIsoStringWithLocal(DateTime.now());
+
+    // display fake placeholder for sending message for user experience
+    displaySenddingMessage(
+      currentTimeIsoString,
+      text: text,
+      file: file,
+      images: getPickImageOriginUrls(),
+    );
+    _isPickedImages = false;
+    final imageUrls = await getPickImageUrls();
+    clearPickedImages();
+    sendMessage(
+      currentTimeIsoString,
+      text: text,
+      file: file,
+      images: imageUrls,
+    );
+  }
+
+  void sendMessage(
+    String currentTimeIsoString, {
+    String? text,
+    FileMetadata? file,
+    List<String>? images,
+  }) {
     if (groupId != null) {
       sendGroupMessage(
         userId: userId,
@@ -128,15 +158,14 @@ class ChatViewModel extends ChangeNotifier {
         images: images,
       );
     }
-    displaySenddingMessage(text, file, images, currentTimeIsoString);
   }
 
   void displaySenddingMessage(
+    String currentTimeIsoString, {
     String? text,
-    String? file,
+    FileMetadata? file,
     List<String>? images,
-    String currentTimeIsoString,
-  ) {
+  }) {
     // # create fake message to display faster
     final fakeMessage = Message(
       id: "temp-$currentTimeIsoString",
@@ -170,13 +199,13 @@ class ChatViewModel extends ChangeNotifier {
     );
 
     if (index != -1) {
-      _messages.removeAt(index);
+      _messages[index].id = message.id;
+      _messages[index].content = message.content;
+      _messages[index].images = message.images;
+      _messages[index].file = message.file;
     }
 
     debugPrint("${_messages.length}");
-
-    _conversationRepo.addMessage(message);
-
     notifyListeners();
   }
 
@@ -195,7 +224,7 @@ class ChatViewModel extends ChangeNotifier {
     required int receiverId,
     required String timeStamp,
     String? messageContent,
-    String? file,
+    FileMetadata? file,
     List<String>? images,
   }) async {
     final messageCreate = DirectMessageCreate(
@@ -220,7 +249,7 @@ class ChatViewModel extends ChangeNotifier {
     required int groupId,
     required String timeStamp,
     String? messageContent,
-    String? file,
+    FileMetadata? file,
     List<String>? images,
   }) async {
     final groupMessageCreate = GroupMessageCreate(
@@ -245,5 +274,140 @@ class ChatViewModel extends ChangeNotifier {
   void dispose() {
     _messageSubscription?.cancel();
     super.dispose();
+  }
+
+  bool _isPickedImages = false;
+  bool get isPickedImages => _isPickedImages;
+  List<XFile>? _currentPickedImageFiles;
+  List<XFile>? get currentPickedImageFiles => _currentPickedImageFiles;
+
+  void displayPickedImages(List<XFile>? images) async {
+    if (images == null) return;
+    _currentPickedImageFiles = images;
+    _isPickedImages = true;
+    notifyListeners();
+  }
+
+  Future<List<String>?> getPickImageUrls() async {
+    if (_currentPickedImageFiles == null) return null;
+
+    List<Future<String?>> uploadImageUrls =
+        _currentPickedImageFiles!.map((imageFile) async {
+          debugPrint(
+            "[image upload] image original name : ${imageFile.name.split('.')[0]}",
+          );
+          final response = await _mediaFileRepo.postImageToServer(imageFile);
+          if (response.result == null) {
+            debugPrint("[image upload] fail original path : ${imageFile.name}");
+            return null;
+          } else {
+            return response.result!.imageUrl;
+          }
+        }).toList();
+
+    // raw results, contain image urls and may contain null
+    final rawImageUrls = await Future.wait(uploadImageUrls);
+
+    // filter all null
+    final imageUrls = rawImageUrls.whereType<String>().toList();
+
+    return imageUrls.isEmpty ? null : imageUrls;
+  }
+
+  List<String>? getPickImageOriginUrls() {
+    if (_currentPickedImageFiles == null) return null;
+    return _currentPickedImageFiles?.map((item) => item.path).toList();
+  }
+
+  void removePickedImage(int index) {
+    if (_currentPickedImageFiles == null ||
+        index > _currentPickedImageFiles!.length - 1) {
+      return;
+    }
+    _currentPickedImageFiles!.removeAt(index);
+    if (_currentPickedImageFiles!.isEmpty) {
+      clearPickedImages();
+    }
+    notifyListeners();
+  }
+
+  void clearPickedImages() {
+    _currentPickedImageFiles = null;
+    _isPickedImages = false;
+  }
+
+  bool _isPickedFiles = false;
+  bool get isPickedFiles => _isPickedFiles;
+  List<XFile>? _currentPickedFiles;
+  List<XFile>? get currentPickedFiles => _currentPickedFiles;
+
+  void displayPickedFiles(List<XFile>? files) {
+    if (files == null) return;
+    _isPickedFiles = true;
+    _currentPickedFiles = files;
+    notifyListeners();
+  }
+
+  void sendFilesToServer() async {
+    if (_currentPickedFiles == null) return;
+
+    _isPickedFiles = false;
+
+    List<Future> uploadTasks =
+        _currentPickedFiles!.map((file) async {
+          // display sending file placeholder
+          String currentTimeIsoString = toIsoStringWithLocal(
+            DateTime.now().add(Duration(milliseconds: Random().nextInt(1000))),
+          );
+          final fileMetadata = FileMetadata(
+            url: file.path,
+            name: file.name,
+            format: file.name.split('.').last,
+            size: 0,
+          );
+          displaySenddingMessage(currentTimeIsoString, file: fileMetadata);
+
+          // upload file to server first
+          final uploadFile = await _mediaFileRepo.postFileToServer(file);
+          if (uploadFile.result != null) {
+            var originalName = uploadFile.result!.originalName ?? "unknown";
+            var format = uploadFile.result!.format ?? "bin";
+            var saveName = "$originalName.$format";
+            FileMetadata fileMetadata = FileMetadata(
+              url: uploadFile.result!.fileUrl,
+              name: saveName,
+              format: uploadFile.result!.format!,
+              size: uploadFile.result!.size!,
+            );
+
+            // then record the user message into database
+            sendMessage(currentTimeIsoString, file: fileMetadata);
+          } else {
+            // display error if send file to server unsucessfully
+            updateErrorMessage("temp-$currentTimeIsoString");
+          }
+        }).toList();
+
+    await Future.wait(uploadTasks);
+
+    clearPickedFiles();
+  }
+
+  void removePickedFiles(int index) {
+    if (_currentPickedFiles == null ||
+        index > _currentPickedFiles!.length - 1) {
+      return;
+    }
+    _currentPickedFiles!.removeAt(index);
+    if (_currentPickedFiles!.isEmpty) {
+      clearPickedFiles();
+    }
+    notifyListeners();
+  }
+
+  void clearPickedFiles() {
+    _currentPickedFiles = null;
+    _isPickedFiles = false;
+    notifyListeners();
   }
 }

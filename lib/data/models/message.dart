@@ -1,3 +1,4 @@
+import 'package:chatting_app/data/models/file_metadata.dart';
 import 'package:chatting_app/data/models/sender.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -12,7 +13,7 @@ class Message {
   String? content;
   String timestamp;
 
-  String? file;
+  FileMetadata? file;
   List<String>? images;
 
   @JsonKey(name: "receiver_id")
@@ -47,7 +48,7 @@ class MessageCreateBase {
 
   String? content;
   List<String>? images;
-  String? file;
+  FileMetadata? file;
 
   MessageCreateBase({
     required this.userId,

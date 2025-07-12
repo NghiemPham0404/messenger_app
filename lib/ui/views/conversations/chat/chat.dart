@@ -18,7 +18,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   final _webSocketService = WebSocketService();
@@ -59,7 +58,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     // Always dispose of controllers to prevent memory leaks.
-    _textController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _webSocketService.leaveGroup();
@@ -76,17 +74,6 @@ class _ChatPageState extends State<ChatPage> {
         viewModel.requestOlderMessages();
       }
     }
-  }
-
-  void _sendMessage() {
-    if (_textController.text.trim().isEmpty) {
-      return; // Don't send empty messages
-    }
-    final viewModel = Provider.of<ChatViewModel>(context, listen: false);
-    viewModel.sendMessage(_textController.text.trim(), null, null);
-
-    // Clear the input field after sending
-    _textController.clear();
   }
 
   @override
@@ -160,10 +147,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildMessageInputBar() {
-    return ChatInputArea(
-      sendMessage: (message, file, images) => _sendMessage(),
-      messageContentController: _textController,
-    );
+    return ChatInputArea();
   }
 
   Widget _buildChatHeader(ChatViewModel viewModel) {
