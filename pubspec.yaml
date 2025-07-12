@@ -51,6 +51,8 @@ dependencies:
   firebase_core: ^3.15.1
   google_sign_in: ^6.1.5
   firebase_auth: ^5.6.2
+  image_picker: ^1.0.4
+  file_picker: ^10.2.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -119,10 +121,7 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/images/google-color-svgrepo-com.svg
-    - assets/images/facebook-svgrepo-com.svg
-    - assets/images/apple-173-svgrepo-com.svg
-    - assets/images/user-svgrepo-com.svg
+    - assets/images/file_icon/
     - .env
 
 flutter_icons:
