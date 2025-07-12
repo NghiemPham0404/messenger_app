@@ -1,4 +1,5 @@
 import 'package:chatting_app/ui/view_models/setting_view_model.dart';
+import 'package:chatting_app/ui/view_models/theme_view_model.dart';
 import 'package:chatting_app/ui/views/settings/theme/theme.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
 import 'package:chatting_app/ui/widgets/search_bar.dart';
@@ -170,8 +171,17 @@ class SettingsPage extends StatelessWidget {
   }
 
   void navigateToThemeSetting(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(CupertinoPageRoute(builder: (context) => ThemeScreen()));
+    final themeViewModel = Provider.of<ThemeViewModel>(context, listen: false);
+
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoPageRoute(
+        builder:
+            (context) => Provider(
+              create:
+                  (_) => ChangeNotifierProvider.value(value: themeViewModel),
+              child: ThemeScreen(),
+            ),
+      ),
+    );
   }
 }

@@ -19,27 +19,18 @@ class SearchPage extends StatefulWidget {
 class SearchPageState extends State<SearchPage> {
   TextEditingController textEditingController = TextEditingController();
 
-  late ContactViewModel contactViewModel;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    contactViewModel = Provider.of<ContactViewModel>(context, listen: true);
-
-    return Consumer<SearchViewModel>(
-      builder: (context, viewModel, child) {
+    return Consumer2<SearchViewModel, ContactViewModel>(
+      builder: (context, searchViewModel, contactViewModel, child) {
         return CupertinoPageScaffold(
           child: SafeArea(
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                title: SearchingBar(onTap: (q) => search(q, viewModel)),
+                title: SearchingBar(onTap: (q) => search(q, searchViewModel)),
               ),
-              body: _builderBody(context, viewModel),
+              body: _builderBody(context, searchViewModel, contactViewModel),
             ),
           ),
         );
@@ -47,7 +38,11 @@ class SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _builderBody(BuildContext context, SearchViewModel viewModel) {
+  Widget _builderBody(
+    BuildContext context,
+    SearchViewModel viewModel,
+    ContactViewModel contactViewModel,
+  ) {
     if (viewModel.cachedQuery.isEmpty) {
       return SizedBox.shrink();
     }
@@ -77,7 +72,7 @@ class SearchPageState extends State<SearchPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 viewModel.users.isNotEmpty
-                    ? getFetchUsers(context, viewModel)
+                    ? getFetchUsers(context, viewModel, contactViewModel)
                     : SizedBox.shrink(),
                 viewModel.groups.isNotEmpty
                     ? getFetchGroups(context, viewModel)
@@ -90,7 +85,11 @@ class SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget getFetchUsers(BuildContext context, SearchViewModel searchViewModel) {
+  Widget getFetchUsers(
+    BuildContext context,
+    SearchViewModel searchViewModel,
+    ContactViewModel contactViewModel,
+  ) {
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainerLowest,
       child: Column(
@@ -106,11 +105,21 @@ class SearchPageState extends State<SearchPage> {
               final result = searchViewModel.users[index];
               return SearchUserItem(
                 result: result,
-                sendRequest: (userId) => sendRequest(userId, searchViewModel),
+                sendRequest:
+                    (userId) =>
+                        sendRequest(userId, searchViewModel, contactViewModel),
                 acceptRequest:
-                    (contactId) => acceptRequest(contactId, searchViewModel),
+                    (contactId) => acceptRequest(
+                      contactId,
+                      searchViewModel,
+                      contactViewModel,
+                    ),
                 dismissRequest:
-                    (contactId) => dismissRequest(contactId, searchViewModel),
+                    (contactId) => dismissRequest(
+                      contactId,
+                      searchViewModel,
+                      contactViewModel,
+                    ),
                 key: Key('${result.id}'),
               );
             }),
@@ -182,7 +191,11 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
-  void sendRequest(int userId, SearchViewModel searchViewModel) async {
+  void sendRequest(
+    int userId,
+    SearchViewModel searchViewModel,
+    ContactViewModel contactViewModel,
+  ) async {
     final contact = await contactViewModel.sendRequest(userId);
     if (contact != null) {
       debugPrint("[contact send success]");
@@ -190,7 +203,11 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
-  void acceptRequest(int contactId, SearchViewModel searchViewModel) async {
+  void acceptRequest(
+    int contactId,
+    SearchViewModel searchViewModel,
+    ContactViewModel contactViewModel,
+  ) async {
     final contact = await contactViewModel.acceptRequest(contactId);
     if (contact != null) {
       debugPrint("[contact accepted]");
@@ -198,7 +215,11 @@ class SearchPageState extends State<SearchPage> {
     }
   }
 
-  void dismissRequest(int contactId, SearchViewModel searchViewModel) async {
+  void dismissRequest(
+    int contactId,
+    SearchViewModel searchViewModel,
+    ContactViewModel contactViewModel,
+  ) async {
     if (await contactViewModel.dismissRequest(contactId) != -1) {
       debugPrint("[contact dismiss]");
       searchViewModel.dismissOrDeleteRequest(contactId);

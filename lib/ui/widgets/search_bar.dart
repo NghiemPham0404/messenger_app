@@ -50,8 +50,9 @@ class SearchAppBar extends StatelessWidget {
   }
 
   void _navigateToSearchView(BuildContext context) {
-    final contactProdiver = ChangeNotifierProvider(
-      create: (_) => Provider.of<ContactViewModel>(context),
+    final contactViewModel = Provider.of<ContactViewModel>(
+      context,
+      listen: false,
     );
     debugPrint("[Search APPBAR] Navigate to SEARCH");
     Navigator.of(context, rootNavigator: true).push(
@@ -60,7 +61,7 @@ class SearchAppBar extends StatelessWidget {
             (context, animation, secondaryAnimation) => MultiProvider(
               providers: [
                 ChangeNotifierProvider(create: (_) => SearchViewModel()),
-                contactProdiver,
+                ChangeNotifierProvider.value(value: contactViewModel),
               ],
               child: const SearchPage(),
             ),
