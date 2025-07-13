@@ -81,9 +81,10 @@ class LoginPageState extends State<LoginPage> {
               child: Text(
                 "Forgot password ?",
                 style: TextStyle(
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
@@ -120,9 +121,10 @@ class LoginPageState extends State<LoginPage> {
                 child: Text(
                   "Sign up",
                   style: TextStyle(
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -138,14 +140,14 @@ class LoginPageState extends State<LoginPage> {
       children: [
         SizedBox(height: 64),
         SizedBox(
-          width: 128,
-          height: 128,
+          width: 96,
+          height: 96,
           child: Image(image: AssetImage("assets/images/app_logo.png")),
         ),
         Text(
           "Messenger app",
           style: TextStyle(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
@@ -210,20 +212,24 @@ class LoginPageState extends State<LoginPage> {
       margin: const EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
-        gradient:
+        // gradient:
+        //     viewModel.isLoading
+        //         ? LinearGradient(
+        //           colors: [
+        //             Theme.of(context).disabledColor,
+        //             Theme.of(context).disabledColor,
+        //           ],
+        //         )
+        //         : LinearGradient(
+        //           colors: [
+        //             Theme.of(context).primaryColor,
+        //             Theme.of(context).primaryColorDark,
+        //           ],
+        //         ),
+        color:
             viewModel.isLoading
-                ? LinearGradient(
-                  colors: [
-                    Theme.of(context).disabledColor,
-                    Theme.of(context).disabledColor,
-                  ],
-                )
-                : LinearGradient(
-                  colors: [
-                    Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColorDark,
-                  ],
-                ),
+                ? Theme.of(context).disabledColor
+                : Theme.of(context).colorScheme.onSurface,
       ),
       child: SizedBox(
         width: double.infinity,
@@ -234,7 +240,7 @@ class LoginPageState extends State<LoginPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
             ),
           ),
         ),
@@ -312,7 +318,7 @@ class LoginPageState extends State<LoginPage> {
   }
 
   void navigateToHome() {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       CupertinoPageRoute(
         builder: (context) {

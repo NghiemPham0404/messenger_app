@@ -1,5 +1,7 @@
+import 'package:chatting_app/ui/view_models/login_view_model.dart';
 import 'package:chatting_app/ui/view_models/setting_view_model.dart';
 import 'package:chatting_app/ui/view_models/theme_view_model.dart';
+import 'package:chatting_app/ui/views/login/login.dart';
 import 'package:chatting_app/ui/views/settings/theme/theme.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
 import 'package:chatting_app/ui/widgets/search_bar.dart';
@@ -179,7 +181,15 @@ class SettingsPage extends StatelessWidget {
 
   void logOut(BuildContext context, SettingsViewModel viewModel) {
     viewModel.logOut();
-    Navigator.of(context, rootNavigator: true).pop();
+    Navigator.of(context, rootNavigator: true).pushReplacement(
+      CupertinoPageRoute(
+        builder:
+            (context) => ChangeNotifierProvider(
+              create: (_) => LoginViewModel(),
+              child: LoginPage(),
+            ),
+      ),
+    );
   }
 
   void navigateToThemeSetting(BuildContext context) {

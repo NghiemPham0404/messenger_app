@@ -1,9 +1,9 @@
-import 'package:chatting_app/ui/view_models/login_view_model.dart';
+import 'package:chatting_app/ui/view_models/splash_view_model.dart';
 import 'package:chatting_app/ui/view_models/theme_view_model.dart';
 import 'package:chatting_app/ui/views/contacts/contacts.dart';
 import 'package:chatting_app/ui/views/conversations/conversations.dart';
-import 'package:chatting_app/ui/views/login/login.dart';
 import 'package:chatting_app/ui/views/settings/setting.dart';
+import 'package:chatting_app/ui/views/splash/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,18 +26,23 @@ class MyApp extends StatelessWidget {
       create: (_) => ThemeViewModel(),
       child: Consumer<ThemeViewModel>(
         builder:
-            (context, viewModel, child) => MaterialApp(
-              title: 'Messenger',
-              theme: _getBrightThemeData(context, viewModel),
-              darkTheme: _getDarkThemeData(context, viewModel),
-              home: SafeArea(
-                child: ChangeNotifierProvider(
-                  create: (_) => LoginViewModel(),
-                  child: const LoginPage(),
-                ),
-              ),
-              debugShowCheckedModeBanner: false,
-            ),
+            (context, viewModel, child) =>
+                viewModel.isLoaded
+                    ? MaterialApp(
+                      title: 'Messenger',
+                      theme: _getBrightThemeData(context, viewModel),
+                      darkTheme: _getDarkThemeData(context, viewModel),
+                      home: SafeArea(
+                        child: ChangeNotifierProvider(
+                          // create: (_) => LoginViewModel(),
+                          // child: const LoginPage(),
+                          create: (_) => SplashScreenViewModel(),
+                          child: const SplashScreen(),
+                        ),
+                      ),
+                      debugShowCheckedModeBanner: false,
+                    )
+                    : SizedBox.shrink(),
       ),
     );
   }

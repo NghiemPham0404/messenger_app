@@ -59,7 +59,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                                 viewModel.isLoading
                                     ? null
                                     : () => _submit(context, viewModel),
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                             child:
                                 viewModel.isLoading
                                     ? CircularProgressIndicator(
@@ -67,7 +67,12 @@ class SignUpScreenState extends State<SignUpScreen> {
                                     )
                                     : Text(
                                       "Register",
-                                      style: TextStyle(color: Colors.white),
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.surface,
+                                      ),
                                     ),
                           ),
                         ),
