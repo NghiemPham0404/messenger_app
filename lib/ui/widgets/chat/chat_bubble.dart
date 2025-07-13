@@ -93,6 +93,8 @@ class MessageBubbleState extends State<MessageBubble> {
         gradient:
             isMe
                 ? LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [theme.primaryColor, theme.primaryColorDark],
                 )
                 : LinearGradient(

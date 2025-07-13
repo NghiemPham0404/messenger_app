@@ -26,21 +26,18 @@ class MyApp extends StatelessWidget {
       create: (_) => ThemeViewModel(),
       child: Consumer<ThemeViewModel>(
         builder:
-            (context, viewModel, child) =>
-                viewModel.isLoaded
-                    ? MaterialApp(
-                      title: 'Messenger',
-                      theme: _getBrightThemeData(context, viewModel),
-                      darkTheme: _getDarkThemeData(context, viewModel),
-                      home: SafeArea(
-                        child: ChangeNotifierProvider(
-                          create: (_) => LoginViewModel(),
-                          child: const LoginPage(),
-                        ),
-                      ),
-                      debugShowCheckedModeBanner: false,
-                    )
-                    : SizedBox.shrink(),
+            (context, viewModel, child) => MaterialApp(
+              title: 'Messenger',
+              theme: _getBrightThemeData(context, viewModel),
+              darkTheme: _getDarkThemeData(context, viewModel),
+              home: SafeArea(
+                child: ChangeNotifierProvider(
+                  create: (_) => LoginViewModel(),
+                  child: const LoginPage(),
+                ),
+              ),
+              debugShowCheckedModeBanner: false,
+            ),
       ),
     );
   }
@@ -50,11 +47,7 @@ class MyApp extends StatelessWidget {
     ThemeViewModel themeViewModel,
   ) {
     return ThemeData(
-      useMaterial3: true,
       brightness: themeViewModel.currentBrightMode ?? Brightness.light,
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: themeViewModel.primaryColor,
-      ),
       primaryColor: themeViewModel.primaryColor,
       primaryColorDark: themeViewModel.primaryDarkColor,
     );
@@ -68,9 +61,6 @@ class MyApp extends StatelessWidget {
       brightness: themeViewModel.currentBrightMode ?? Brightness.dark,
       primaryColor: themeViewModel.primaryColor,
       primaryColorDark: themeViewModel.primaryDarkColor,
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: themeViewModel.primaryColor,
-      ),
     );
   }
 }
@@ -94,8 +84,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return CupertinoPageScaffold(
       child: CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
+          activeColor: Theme.of(context).primaryColorDark,
           backgroundColor: Theme.of(context).colorScheme.surface,
-          activeColor: Theme.of(context).primaryColor,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.chat_outlined),

@@ -28,35 +28,26 @@ class ThemeRepo {
     return selectedIndex;
   }
 
-  Color hexToColor(String hexString) {
-    final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7)
-      buffer.write('ff'); // default alpha
-    buffer.write(hexString.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
-  }
-
   List<CustomColorsModel> getPalletes() {
     return [
       CustomColorsModel(primary: Colors.pink, primaryDark: Colors.redAccent),
-      CustomColorsModel(primary: Colors.yellow, primaryDark: Colors.orange),
-      CustomColorsModel(primary: Colors.greenAccent, primaryDark: Colors.green),
-      CustomColorsModel(primary: Colors.cyan, primaryDark: Colors.blue),
       CustomColorsModel(
-        primary: Colors.purpleAccent,
-        primaryDark: Colors.purple,
+        primary: Colors.orange,
+        primaryDark: Colors.orangeAccent,
       ),
+      CustomColorsModel(primary: Colors.green, primaryDark: Colors.greenAccent),
+      CustomColorsModel(primary: Colors.blue, primaryDark: Colors.cyan),
       CustomColorsModel(
-        primary: hexToColor("#FC466B"),
-        primaryDark: hexToColor("#3F5EFB"),
+        primary: Colors.purple,
+        primaryDark: Colors.purpleAccent,
       ),
+      CustomColorsModel(primary: Colors.purple, primaryDark: Colors.pink),
+      CustomColorsModel(primary: Colors.cyanAccent, primaryDark: Colors.orange),
+      CustomColorsModel(primary: Colors.pink, primaryDark: Colors.orange),
+      CustomColorsModel(primary: Colors.purple, primaryDark: Colors.indigo),
       CustomColorsModel(
-        primary: hexToColor("#00F260"),
-        primaryDark: hexToColor("#0575E6"),
-      ),
-      CustomColorsModel(
-        primary: hexToColor("#22c1c3"),
-        primaryDark: hexToColor("#fdbb2d"),
+        primary: Colors.cyanAccent,
+        primaryDark: Colors.greenAccent,
       ),
     ];
   }
