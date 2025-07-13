@@ -80,14 +80,26 @@ class SettingsPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.surface,
                       ),
                     ),
-                    Text("your profile"),
+                    Text(
+                      "your profile",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-            IconButton(icon: Icon(Icons.edit), onPressed: () {}),
+            IconButton(
+              icon: Icon(
+                Icons.edit,
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              onPressed: () {},
+            ),
           ],
         ),
       ),

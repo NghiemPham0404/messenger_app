@@ -208,25 +208,35 @@ class LoginPageState extends State<LoginPage> {
   Widget _getLoginButton(LoginViewModel viewModel) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.0),
+        gradient:
+            viewModel.isLoading
+                ? LinearGradient(
+                  colors: [
+                    Theme.of(context).disabledColor,
+                    Theme.of(context).disabledColor,
+                  ],
+                )
+                : LinearGradient(
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Theme.of(context).primaryColorDark,
+                  ],
+                ),
+      ),
       child: SizedBox(
         width: double.infinity,
         child: CupertinoButton(
           onPressed: () => viewModel.isLoading ? null : handleLogin(viewModel),
-          color:
-              viewModel.isLoading
-                  ? Theme.of(context).colorScheme.surfaceContainerHigh
-                  : Theme.of(context).primaryColor,
-          child:
-              viewModel.isLoading
-                  ? Text("Loadding")
-                  : Text(
-                    "Login",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+          child: Text(
+            viewModel.isLoading ? "Loadding..." : "Login",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
