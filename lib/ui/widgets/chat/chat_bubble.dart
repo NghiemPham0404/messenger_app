@@ -2,15 +2,24 @@ import 'dart:io';
 
 import 'package:chatting_app/data/models/message.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
-import 'package:chatting_app/ui/widgets/chat/file_icon.dart';
+import 'package:chatting_app/ui/widgets/chat/file_item.dart';
+import 'package:chatting_app/ui/widgets/image_viewer.dart';
+import 'package:chatting_app/util/format_readable_date.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // --- Helper Widget for Chat Bubbles ---
 class MessageBubble extends StatefulWidget {
   final Message message;
   final bool isMe;
+  final VoidCallback onTap;
 
-  const MessageBubble({super.key, required this.message, required this.isMe});
+  const MessageBubble({
+    super.key,
+    required this.message,
+    required this.isMe,
+    required this.onTap,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -21,14 +30,19 @@ class MessageBubble extends StatefulWidget {
 class MessageBubbleState extends State<MessageBubble> {
   late final Message message;
   late final bool isMe;
+  late final VoidCallback onTap;
+
   bool _sent = true;
   bool _error = true;
+  bool _showSentTime = false;
 
   @override
   void initState() {
     super.initState();
     message = widget.message;
     isMe = widget.isMe;
+    onTap = widget.onTap;
+
     _sent = !widget.message.id.startsWith("temp");
     _error = widget.message.id.startsWith("error");
   }
@@ -50,6 +64,7 @@ class MessageBubbleState extends State<MessageBubble> {
                   isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (_showSentTime) _getSentTime(),
                 if (message.content != null) getMessageContentBubble(context),
                 if (message.images != null && message.images!.isNotEmpty)
                   _displayImage(),
@@ -86,36 +101,45 @@ class MessageBubbleState extends State<MessageBubble> {
 
   Widget getMessageContentBubble(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      margin: EdgeInsets.fromLTRB((isMe ? 100 : 10), 10, (isMe ? 10 : 100), 0),
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
-      decoration: BoxDecoration(
-        gradient:
-            isMe
-                ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [theme.primaryColor, theme.primaryColorDark],
-                )
-                : LinearGradient(
-                  colors: [
-                    theme.colorScheme.surfaceContainerHighest,
-                    theme.colorScheme.surfaceContainerHigh,
-                  ],
-                ),
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(20.0),
-          topRight: const Radius.circular(20.0),
-          bottomLeft:
-              isMe ? const Radius.circular(20.0) : const Radius.circular(0),
-          bottomRight:
-              isMe ? const Radius.circular(0) : const Radius.circular(20.0),
+    return GestureDetector(
+      onTap: () => _changeShowSentTime(),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(
+          (isMe ? 100 : 10),
+          10,
+          (isMe ? 10 : 100),
+          0,
         ),
-      ),
-      child: Text(
-        message.content ?? '',
-        style: TextStyle(
-          color: isMe ? Colors.white : Theme.of(context).colorScheme.onSurface,
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
+        decoration: BoxDecoration(
+          gradient:
+              isMe
+                  ? LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [theme.primaryColor, theme.primaryColorDark],
+                  )
+                  : LinearGradient(
+                    colors: [
+                      theme.colorScheme.surfaceContainerHighest,
+                      theme.colorScheme.surfaceContainerHigh,
+                    ],
+                  ),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20.0),
+            topRight: const Radius.circular(20.0),
+            bottomLeft:
+                isMe ? const Radius.circular(20.0) : const Radius.circular(0),
+            bottomRight:
+                isMe ? const Radius.circular(0) : const Radius.circular(20.0),
+          ),
+        ),
+        child: Text(
+          message.content ?? '',
+          style: TextStyle(
+            color:
+                isMe ? Colors.white : Theme.of(context).colorScheme.onSurface,
+          ),
         ),
       ),
     );
@@ -123,7 +147,10 @@ class MessageBubbleState extends State<MessageBubble> {
 
   Widget _displayImage() {
     if (message.images!.length > 1) {
-      return _getImagesFrames();
+      return GestureDetector(
+        onTap: () => navigateToImageViewer(),
+        child: _getImagesFrames(),
+      );
     } else {
       return _getSingleImage();
     }
@@ -180,60 +207,33 @@ class MessageBubbleState extends State<MessageBubble> {
   Widget _displayFile(BuildContext context) {
     return Container(
       margin: EdgeInsets.fromLTRB((isMe ? 100 : 10), 10, (isMe ? 10 : 100), 0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.surfaceContainer,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          spacing: 10,
-          children: [
-            getFileIconAsset(
-              message.file!.format,
-              fileName: message.file!.name,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message.file!.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Row(
-                    spacing: 10,
-                    children: [
-                      Text(message.file!.format, maxLines: 1),
-                      Text(formatBytes(message.file!.size), maxLines: 1),
-                    ],
-                  ),
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Icon(Icons.info_outline, size: 16),
-                      Text("download for offline", maxLines: 1),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      child: FileItem(message.file!, onTap),
+    );
+  }
+
+  void _changeShowSentTime() {
+    setState(() {
+      _showSentTime = !_showSentTime;
+    });
+  }
+
+  Widget _getSentTime() {
+    return SizedBox(
+      width: double.infinity,
+      child: Text(
+        formatReadableDateChat(message.timestamp),
+        style: TextStyle(fontSize: 10),
+        textAlign: TextAlign.center,
       ),
     );
   }
 
-  String formatBytes(int bytes) {
-    if (bytes >= 1024 * 1024) {
-      double mb = bytes / (1024 * 1024);
-      return "${mb.toStringAsFixed(2)} MB";
-    } else if (bytes >= 1024) {
-      double kb = bytes / 1024;
-      return "${kb.toStringAsFixed(2)} KB";
-    } else {
-      return "$bytes B";
-    }
+  void navigateToImageViewer() {
+    if (message.images == null) return;
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) => ImageViewer(message.images ?? []),
+      ),
+    );
   }
 }

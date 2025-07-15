@@ -1,8 +1,14 @@
+import 'dart:io';
+
+import 'package:chatting_app/data/models/file_metadata.dart';
 import 'package:chatting_app/data/models/upload_file_model.dart';
 import 'package:chatting_app/data/network/api_client.dart';
 import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MediaFileRepo {
   final _apiClient = ApiClient();
@@ -47,5 +53,50 @@ class MediaFileRepo {
     final formData = FormData.fromMap({'file': multipartFile});
 
     return await _apiClient.mediaFileApi.postFile(formData);
+  }
+}
+
+extension DownloadFileService on MediaFileRepo {
+  Future<bool> requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.manageExternalStorage.request();
+
+      if (status.isGranted) return true;
+
+      // If denied forever
+      if (status.isPermanentlyDenied) {
+        openAppSettings();
+      }
+
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<String> downloadFile(
+    FileMetadata fileMetadata,
+    Function(int, int) onProgress,
+  ) async {
+    final url = fileMetadata.url;
+    debugPrint("[Download] url : $url");
+    final Dio dio = Dio();
+
+    if (!await requestStoragePermission()) {
+      throw Exception("[Download] : Permission not granted");
+    }
+
+    final dir =
+        Platform.isAndroid
+            ? Directory("/storage/emulated/0/Download")
+            : await getApplicationDocumentsDirectory();
+
+    final fileName = fileMetadata.name;
+    final savePath = '${dir.path}/MessengerApp/$fileName';
+    debugPrint("[Download] local path : $savePath");
+
+    await dio.download(url, savePath, onReceiveProgress: onProgress);
+
+    return savePath;
   }
 }

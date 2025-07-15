@@ -87,6 +87,15 @@ class _ChatPageState extends State<ChatPage> {
             body: Column(
               children: [
                 _buildChatHeader(viewModel),
+                if (viewModel.errorMessage != null)
+                  Container(
+                    width: double.infinity,
+                    color: Colors.redAccent,
+                    child: Text(
+                      viewModel.errorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 // --- Message List Area ---
                 Expanded(child: _buildMessagesList(viewModel)),
                 // --- Message Input Area ---
@@ -141,6 +150,7 @@ class _ChatPageState extends State<ChatPage> {
           key: Key(message.id),
           message: message,
           isMe: isMe,
+          onTap: () => _downloadFile(index, viewModel),
         );
       },
     );
@@ -152,5 +162,9 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildChatHeader(ChatViewModel viewModel) {
     return ChatHeader(conversation: viewModel.conversation!);
+  }
+
+  void _downloadFile(int index, ChatViewModel viewModel) {
+    viewModel.downloadFile(index);
   }
 }

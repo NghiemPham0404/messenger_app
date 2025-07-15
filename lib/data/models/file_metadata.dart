@@ -9,11 +9,19 @@ class FileMetadata {
   String format;
   int size;
 
+  String? localUrl;
+  bool isDownloading = false;
+  double progress = 0.0;
+
   FileMetadata({
     required this.url,
     required this.name,
     required this.format,
     required this.size,
+
+    this.localUrl,
+    this.isDownloading = false,
+    this.progress = 0.0,
   });
 
   factory FileMetadata.fromJson(Map<String, dynamic> json) =>
