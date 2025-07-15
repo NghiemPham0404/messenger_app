@@ -115,3 +115,15 @@ class GroupMessageCreate extends MessageCreateBase {
     return json;
   }
 }
+
+@JsonSerializable()
+class MessageUpdate {
+  String content;
+
+  MessageUpdate({required this.content});
+
+  factory MessageUpdate.fromJson(Map<String, dynamic> json) =>
+      _$MessageUpdateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MessageUpdateToJson(this);
+}

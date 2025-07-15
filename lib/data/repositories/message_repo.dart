@@ -1,5 +1,6 @@
 import 'package:chatting_app/data/models/message.dart';
 import 'package:chatting_app/data/network/api_client.dart';
+import 'package:chatting_app/data/responses/message_response.dart';
 import 'package:flutter/cupertino.dart';
 
 class MessageRepo {
@@ -36,5 +37,20 @@ class MessageRepo {
       debugPrint("[Send GroupMessage] error : $e");
       return null;
     }
+  }
+
+  Future<Message?> updateSentMessage(
+    String messageId,
+    MessageUpdate updatedMessage,
+  ) async {
+    final response = await _apiClient.messageApi.putMessage(
+      messageId,
+      updatedMessage,
+    );
+    return response.result!;
+  }
+
+  Future<MessageResponse> deleteMessage(String messageId) async {
+    return _apiClient.messageApi.deleteMessage(messageId);
   }
 }

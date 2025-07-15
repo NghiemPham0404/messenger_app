@@ -1,4 +1,5 @@
 import 'package:chatting_app/data/models/message.dart';
+import 'package:chatting_app/data/responses/message_response.dart';
 import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
@@ -23,4 +24,13 @@ abstract class MessageService {
   Future<ObjectResponse<Message>> postDirectMessage(
     @Body() DirectMessageCreate directMessage,
   );
+
+  @PUT("/messages/{id}")
+  Future<ObjectResponse<Message>> putMessage(
+    @Path("id") String id,
+    @Body() MessageUpdate updateMessage,
+  );
+
+  @DELETE("/messages/{id}")
+  Future<MessageResponse> deleteMessage(@Path("id") String id);
 }

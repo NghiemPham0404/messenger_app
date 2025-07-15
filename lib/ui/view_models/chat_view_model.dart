@@ -195,7 +195,7 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateNewMessage(Message message) async {
+  void updateNewMessage(Message message) async {
     final incomingTime = DateTime.parse(message.timestamp).toUtc();
 
     final index = _messages.indexWhere(
@@ -230,7 +230,7 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendDirectMessage({
+  void sendDirectMessage({
     required int userId,
     required int receiverId,
     required String timeStamp,
@@ -255,7 +255,7 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> sendGroupMessage({
+  void sendGroupMessage({
     required int userId,
     required int groupId,
     required String timeStamp,
@@ -278,6 +278,58 @@ class ChatViewModel extends ChangeNotifier {
     } else {
       updateErrorMessage("temp-$timeStamp");
       _setError("send error");
+    }
+  }
+
+  void editSentMessage({
+    required String messageId,
+    String updateTextContent = "",
+  }) async {
+    try {
+      final updatedMessage = MessageUpdate(content: updateTextContent);
+      final message = await messageRepo.updateSentMessage(
+        messageId,
+        updatedMessage,
+      );
+      if (message == null) {
+        _setError("can't update message");
+      } else {
+        final index = _messages.indexWhere(
+          (message) => message.id == messageId,
+        );
+        if (index != -1) {
+          _messages[index].content = message.content;
+        }
+      }
+    } on DioException catch (e) {
+      debugPrint("[Update Message] detail : ${e.response!.data["detail"]}");
+      _setError(e.response!.data["detail"]);
+    } catch (e) {
+      debugPrint("[Update Message] detail : $e");
+      _setError(e.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  void deleteMessage(String messageId) async {
+    debugPrint("[Delete Message] id = $messageId");
+    try {
+      final messageResponse = await messageRepo.deleteMessage(messageId);
+      if (messageResponse.success) {
+        final index = _messages.indexWhere(
+          (message) => message.id == messageId,
+        );
+        _messages.removeAt(index);
+      }
+    } on DioException catch (e) {
+      debugPrint("[Delete Message] detail : ${e.response!.data["detail"]}");
+      _setError(e.response!.data["detail"]);
+    } catch (e) {
+      debugPrint("[Delete Message] detail : $e");
+      _setError(e.toString());
+    } finally {
+      notifyListeners();
     }
   }
 

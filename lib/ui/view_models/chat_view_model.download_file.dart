@@ -23,7 +23,7 @@ extension FileDownloadExtend on ChatViewModel {
       file.localUrl = localUrl;
     } on DioException catch (e) {
       debugPrint('Download error: $e');
-      _setError(e.message);
+      _setError("Error has occured, please try again");
     } catch (e) {
       debugPrint('Download error: $e');
       _setError("Error has occured, please try again");

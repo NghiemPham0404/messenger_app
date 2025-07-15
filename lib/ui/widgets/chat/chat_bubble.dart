@@ -13,12 +13,14 @@ class MessageBubble extends StatefulWidget {
   final Message message;
   final bool isMe;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isMe,
     required this.onTap,
+    required this.onLongPress,
   });
 
   @override
@@ -31,6 +33,7 @@ class MessageBubbleState extends State<MessageBubble> {
   late final Message message;
   late final bool isMe;
   late final VoidCallback onTap;
+  late final VoidCallback onLongPress;
 
   bool _sent = true;
   bool _error = true;
@@ -42,6 +45,7 @@ class MessageBubbleState extends State<MessageBubble> {
     message = widget.message;
     isMe = widget.isMe;
     onTap = widget.onTap;
+    onLongPress = widget.onLongPress;
 
     _sent = !widget.message.id.startsWith("temp");
     _error = widget.message.id.startsWith("error");
@@ -103,6 +107,7 @@ class MessageBubbleState extends State<MessageBubble> {
     final theme = Theme.of(context);
     return GestureDetector(
       onTap: () => _changeShowSentTime(),
+      onLongPress: isMe ? () => onLongPress() : null,
       child: Container(
         margin: EdgeInsets.fromLTRB(
           (isMe ? 100 : 10),
