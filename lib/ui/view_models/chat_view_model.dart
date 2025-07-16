@@ -10,8 +10,13 @@ import 'package:chatting_app/data/repositories/conversation_repo.dart';
 import 'package:chatting_app/data/repositories/media_file_repo.dart';
 import 'package:chatting_app/data/repositories/message_repo.dart';
 import 'package:chatting_app/util/format_readable_date.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+
+part "chat_view_model.upload_images.dart";
+part "chat_view_model.upload_files.dart";
+part "chat_view_model.download_file.dart";
 
 class ChatViewModel extends ChangeNotifier {
   final MessageRepo messageRepo = MessageRepo();
@@ -75,9 +80,13 @@ class ChatViewModel extends ChangeNotifier {
     );
   }
 
-  void _setError(String? message) {
+  void _setError(String? message) async {
     _errorMessage = message;
     notifyListeners();
+    Future.delayed(Duration(seconds: 4), () async {
+      _errorMessage = null;
+      notifyListeners();
+    });
   }
 
   void _setLoading(bool isLoading) {
@@ -186,7 +195,7 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateNewMessage(Message message) async {
+  void updateNewMessage(Message message) async {
     final incomingTime = DateTime.parse(message.timestamp).toUtc();
 
     final index = _messages.indexWhere(
@@ -200,9 +209,11 @@ class ChatViewModel extends ChangeNotifier {
 
     if (index != -1) {
       _messages[index].id = message.id;
-      _messages[index].content = message.content;
-      _messages[index].images = message.images;
-      _messages[index].file = message.file;
+      if (_messages[index].file != null) {
+        _messages[index].file?.url = message.file!.url;
+      }
+    } else {
+      _messages.insert(0, message);
     }
 
     debugPrint("${_messages.length}");
@@ -219,7 +230,7 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendDirectMessage({
+  void sendDirectMessage({
     required int userId,
     required int receiverId,
     required String timeStamp,
@@ -244,7 +255,7 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> sendGroupMessage({
+  void sendGroupMessage({
     required int userId,
     required int groupId,
     required String timeStamp,
@@ -270,6 +281,58 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
+  void editSentMessage({
+    required String messageId,
+    String updateTextContent = "",
+  }) async {
+    try {
+      final updatedMessage = MessageUpdate(content: updateTextContent);
+      final message = await messageRepo.updateSentMessage(
+        messageId,
+        updatedMessage,
+      );
+      if (message == null) {
+        _setError("can't update message");
+      } else {
+        final index = _messages.indexWhere(
+          (message) => message.id == messageId,
+        );
+        if (index != -1) {
+          _messages[index].content = message.content;
+        }
+      }
+    } on DioException catch (e) {
+      debugPrint("[Update Message] detail : ${e.response!.data["detail"]}");
+      _setError(e.response!.data["detail"]);
+    } catch (e) {
+      debugPrint("[Update Message] detail : $e");
+      _setError(e.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  void deleteMessage(String messageId) async {
+    debugPrint("[Delete Message] id = $messageId");
+    try {
+      final messageResponse = await messageRepo.deleteMessage(messageId);
+      if (messageResponse.success) {
+        final index = _messages.indexWhere(
+          (message) => message.id == messageId,
+        );
+        _messages.removeAt(index);
+      }
+    } on DioException catch (e) {
+      debugPrint("[Delete Message] detail : ${e.response!.data["detail"]}");
+      _setError(e.response!.data["detail"]);
+    } catch (e) {
+      debugPrint("[Delete Message] detail : $e");
+      _setError(e.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     _messageSubscription?.cancel();
@@ -281,133 +344,8 @@ class ChatViewModel extends ChangeNotifier {
   List<XFile>? _currentPickedImageFiles;
   List<XFile>? get currentPickedImageFiles => _currentPickedImageFiles;
 
-  void displayPickedImages(List<XFile>? images) async {
-    if (images == null) return;
-    _currentPickedImageFiles = images;
-    _isPickedImages = true;
-    notifyListeners();
-  }
-
-  Future<List<String>?> getPickImageUrls() async {
-    if (_currentPickedImageFiles == null) return null;
-
-    List<Future<String?>> uploadImageUrls =
-        _currentPickedImageFiles!.map((imageFile) async {
-          debugPrint(
-            "[image upload] image original name : ${imageFile.name.split('.')[0]}",
-          );
-          final response = await _mediaFileRepo.postImageToServer(imageFile);
-          if (response.result == null) {
-            debugPrint("[image upload] fail original path : ${imageFile.name}");
-            return null;
-          } else {
-            return response.result!.imageUrl;
-          }
-        }).toList();
-
-    // raw results, contain image urls and may contain null
-    final rawImageUrls = await Future.wait(uploadImageUrls);
-
-    // filter all null
-    final imageUrls = rawImageUrls.whereType<String>().toList();
-
-    return imageUrls.isEmpty ? null : imageUrls;
-  }
-
-  List<String>? getPickImageOriginUrls() {
-    if (_currentPickedImageFiles == null) return null;
-    return _currentPickedImageFiles?.map((item) => item.path).toList();
-  }
-
-  void removePickedImage(int index) {
-    if (_currentPickedImageFiles == null ||
-        index > _currentPickedImageFiles!.length - 1) {
-      return;
-    }
-    _currentPickedImageFiles!.removeAt(index);
-    if (_currentPickedImageFiles!.isEmpty) {
-      clearPickedImages();
-    }
-    notifyListeners();
-  }
-
-  void clearPickedImages() {
-    _currentPickedImageFiles = null;
-    _isPickedImages = false;
-  }
-
   bool _isPickedFiles = false;
   bool get isPickedFiles => _isPickedFiles;
   List<XFile>? _currentPickedFiles;
   List<XFile>? get currentPickedFiles => _currentPickedFiles;
-
-  void displayPickedFiles(List<XFile>? files) {
-    if (files == null) return;
-    _isPickedFiles = true;
-    _currentPickedFiles = files;
-    notifyListeners();
-  }
-
-  void sendFilesToServer() async {
-    if (_currentPickedFiles == null) return;
-
-    _isPickedFiles = false;
-
-    List<Future> uploadTasks =
-        _currentPickedFiles!.map((file) async {
-          // display sending file placeholder
-          String currentTimeIsoString = toIsoStringWithLocal(
-            DateTime.now().add(Duration(milliseconds: Random().nextInt(1000))),
-          );
-          final fileMetadata = FileMetadata(
-            url: file.path,
-            name: file.name,
-            format: file.name.split('.').last,
-            size: 0,
-          );
-          displaySenddingMessage(currentTimeIsoString, file: fileMetadata);
-
-          // upload file to server first
-          final uploadFile = await _mediaFileRepo.postFileToServer(file);
-          if (uploadFile.result != null) {
-            var originalName = uploadFile.result!.originalName ?? "unknown";
-            var format = uploadFile.result!.format ?? "bin";
-            var saveName = "$originalName.$format";
-            FileMetadata fileMetadata = FileMetadata(
-              url: uploadFile.result!.fileUrl,
-              name: saveName,
-              format: uploadFile.result!.format!,
-              size: uploadFile.result!.size!,
-            );
-
-            // then record the user message into database
-            sendMessage(currentTimeIsoString, file: fileMetadata);
-          } else {
-            // display error if send file to server unsucessfully
-            updateErrorMessage("temp-$currentTimeIsoString");
-          }
-        }).toList();
-
-    await Future.wait(uploadTasks);
-
-    clearPickedFiles();
-  }
-
-  void removePickedFiles(int index) {
-    if (_currentPickedFiles == null ||
-        index > _currentPickedFiles!.length - 1) {
-      return;
-    }
-    _currentPickedFiles!.removeAt(index);
-    if (_currentPickedFiles!.isEmpty) {
-      clearPickedFiles();
-    }
-    notifyListeners();
-  }
-
-  void clearPickedFiles() {
-    _currentPickedFiles = null;
-    _isPickedFiles = false;
-    notifyListeners();
-  }
 }

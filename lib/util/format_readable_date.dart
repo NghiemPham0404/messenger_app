@@ -37,6 +37,27 @@ String formatReadableDate(String isoDate) {
   }
 }
 
+String formatReadableDateChat(String isoDate) {
+  final date = DateTime.parse(isoDate).toLocal();
+  final now = DateTime.now();
+
+  final diff = now.difference(date);
+
+  if (diff.inSeconds < 60) {
+    return "just now";
+  } else if (diff.inDays < 1) {
+    return DateFormat('HH:mm').format(date);
+  } else if (diff.inDays == 1) {
+    return DateFormat('yesterday HH:mm').format(date);
+  } else if (diff.inDays < 7) {
+    return DateFormat('EEEE  HH:mm').format(date); // e.g. "Tuesday"
+  } else if (now.year == date.year) {
+    return DateFormat('d/M  HH:mm').format(date); // e.g. "25/5"
+  } else {
+    return DateFormat('d/M/yyyy  HH:mm').format(date); // e.g. "21/2/2024"
+  }
+}
+
 ///
 /// covert datetime to iso string with local offset
 ///

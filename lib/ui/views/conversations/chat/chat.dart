@@ -4,6 +4,7 @@ import 'package:chatting_app/ui/view_models/chat_view_model.dart';
 import 'package:chatting_app/ui/widgets/chat/chat_header.dart';
 import 'package:chatting_app/ui/widgets/chat/chat_bubble.dart';
 import 'package:chatting_app/ui/widgets/chat/chat_input_area.dart';
+import 'package:chatting_app/ui/widgets/chat/message_actions.dart';
 import 'package:chatting_app/util/web_socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -87,6 +88,15 @@ class _ChatPageState extends State<ChatPage> {
             body: Column(
               children: [
                 _buildChatHeader(viewModel),
+                if (viewModel.errorMessage != null)
+                  Container(
+                    width: double.infinity,
+                    color: Colors.redAccent,
+                    child: Text(
+                      viewModel.errorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 // --- Message List Area ---
                 Expanded(child: _buildMessagesList(viewModel)),
                 // --- Message Input Area ---
@@ -141,6 +151,15 @@ class _ChatPageState extends State<ChatPage> {
           key: Key(message.id),
           message: message,
           isMe: isMe,
+          onTap: () => _downloadFile(index, viewModel),
+          onLongPress:
+              () => showMessageOptions(
+                context,
+                message,
+                (messageId) => _deleteMessage(messageId, viewModel),
+                (messageId, newTextContent) =>
+                    _editMessage(messageId, newTextContent, viewModel),
+              ),
         );
       },
     );
@@ -152,5 +171,24 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildChatHeader(ChatViewModel viewModel) {
     return ChatHeader(conversation: viewModel.conversation!);
+  }
+
+  void _downloadFile(int index, ChatViewModel viewModel) {
+    viewModel.downloadFile(index);
+  }
+
+  void _editMessage(
+    String messageId,
+    String newTextContent,
+    ChatViewModel viewModel,
+  ) {
+    viewModel.editSentMessage(
+      messageId: messageId,
+      updateTextContent: newTextContent,
+    );
+  }
+
+  void _deleteMessage(String messageId, ChatViewModel viewModel) {
+    viewModel.deleteMessage(messageId);
   }
 }
