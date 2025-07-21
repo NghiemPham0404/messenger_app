@@ -1,6 +1,6 @@
 import 'package:chatting_app/data/models/contact.dart';
 import 'package:chatting_app/data/models/user.dart';
-import 'package:chatting_app/data/models/groups.dart';
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/data/repositories/group_repo.dart';
 import 'package:chatting_app/data/repositories/user_repo.dart';
 import 'package:dio/dio.dart';

@@ -1,5 +1,7 @@
-import 'package:chatting_app/data/models/groups.dart';
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/data/responses/list_response.dart';
+import 'package:chatting_app/data/responses/message_response.dart';
+import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -18,4 +20,19 @@ abstract class GroupService {
     @Query("keyword") String keyword,
     @Query("page") int page,
   );
+
+  @POST("/groups/")
+  Future<ObjectResponse<Group>> createGroup(@Body() GroupCreate groupCreate);
+
+  @GET("/group/{id}")
+  Future<ObjectResponse<Group>> getGroup(@Path("id") int id);
+
+  @PUT("/groups/{id}")
+  Future<ObjectResponse<Group>> updateGroup(
+    @Path("id") int id,
+    @Body() GroupUpdate groupUpdate,
+  );
+
+  @DELETE("/groups/{id}")
+  Future<MessageResponse> deleteGroup(@Path("id") int id);
 }

@@ -1,5 +1,5 @@
 import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/data/models/groups.dart';
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
 import 'package:flutter/material.dart';
 
@@ -130,10 +130,7 @@ class GroupItem extends StatelessWidget {
         height: 64,
         child: getAvatar(group.avatar, seed: group.subject),
       ),
-      title: Text(
-        group.subject ?? "",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
+      title: Text(group.subject, style: TextStyle(fontWeight: FontWeight.bold)),
       trailing: getTrailing(context),
       subtitle: getSubTitle(context),
     );

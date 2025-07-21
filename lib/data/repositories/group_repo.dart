@@ -1,6 +1,8 @@
-import 'package:chatting_app/data/models/groups.dart';
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/data/network/api_client.dart';
 import 'package:chatting_app/data/responses/list_response.dart';
+import 'package:chatting_app/data/responses/message_response.dart';
+import 'package:chatting_app/data/responses/object_response.dart';
 
 class GroupRepo {
   GroupRepo.internal();
@@ -16,5 +18,20 @@ class GroupRepo {
     int page = 1,
   }) async {
     return await _apiClient.groupApi.getGroups(keyword, page);
+  }
+
+  Future<ObjectResponse<Group>> createGroup(GroupCreate groupCreate) async {
+    return await _apiClient.groupApi.createGroup(groupCreate);
+  }
+
+  Future<ObjectResponse<Group>> updateGroup(
+    int id,
+    GroupUpdate groupUpdate,
+  ) async {
+    return await _apiClient.groupApi.updateGroup(id, groupUpdate);
+  }
+
+  Future<MessageResponse> deleteGroup(int id) async {
+    return await _apiClient.groupApi.deleteGroup(id);
   }
 }

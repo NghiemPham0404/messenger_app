@@ -152,7 +152,7 @@ class SearchPageState extends State<SearchPage> {
               return ListTile(
                 key: Key(result.id.toString()),
                 leading: getAvatar(result.avatar, seed: result.subject),
-                title: Text(result.subject ?? "Group"),
+                title: Text(result.subject),
               );
             }),
           ),

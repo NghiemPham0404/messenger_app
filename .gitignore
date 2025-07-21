@@ -51,3 +51,6 @@ app.*.map.json
 *.g.dart
 android/app/google-services.json
 firebase.json
+
+# ignore my preview files
+/lib/ignore
