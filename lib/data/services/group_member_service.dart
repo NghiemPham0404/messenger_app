@@ -29,6 +29,12 @@ abstract class GroupMemberService {
     @Body() GroupMemberCreate groupMemberCreate,
   );
 
+  @GET("/groups/{group_id}/members-check")
+  Future<ListResponse<GroupMemberCheck>> checkGroupMember(
+    @Path("group_id") int groupId,
+    @Query("user_ids") List<int> userIds,
+  );
+
   @POST("/groups/{group_id}/members")
   Future<ObjectResponse<GroupMember>> updateGroupMember(
     @Path("group_id") int groupId,

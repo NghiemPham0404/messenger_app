@@ -13,8 +13,12 @@ class GroupMemberRepo {
 
   final ApiClient _apiClient = ApiClient();
 
-  Future<ListResponse<GroupMember>> fetchGroupMember(int groupId, page) async {
-    return _apiClient.groupMemberApi.getGroupMember(groupId, 1, page);
+  Future<ListResponse<GroupMember>> fetchGroupMember(
+    int groupId,
+    int status,
+    int page,
+  ) async {
+    return _apiClient.groupMemberApi.getGroupMember(groupId, status, page);
   }
 
   Future<ObjectResponse<GroupMember>> createGroupMember(
@@ -27,13 +31,20 @@ class GroupMemberRepo {
     );
   }
 
+  Future<ListResponse<GroupMemberCheck>> checkGroupMember(
+    int groupId,
+    List<int> userIds,
+  ) async {
+    return _apiClient.groupMemberApi.checkGroupMember(groupId, userIds);
+  }
+
   Future<ObjectResponse<GroupMember>> updateGroupMember(
     int groupId,
-    GroupMemberUpdate groupMemberCreate,
+    GroupMemberUpdate groupMemberUpdate,
   ) async {
     return _apiClient.groupMemberApi.updateGroupMember(
       groupId,
-      groupMemberCreate,
+      groupMemberUpdate,
     );
   }
 

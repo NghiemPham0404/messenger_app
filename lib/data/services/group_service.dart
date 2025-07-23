@@ -24,7 +24,7 @@ abstract class GroupService {
   @POST("/groups/")
   Future<ObjectResponse<Group>> createGroup(@Body() GroupCreate groupCreate);
 
-  @GET("/group/{id}")
+  @GET("/groups/{id}")
   Future<ObjectResponse<Group>> getGroup(@Path("id") int id);
 
   @PUT("/groups/{id}")

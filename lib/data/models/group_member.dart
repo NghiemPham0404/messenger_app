@@ -67,10 +67,13 @@ class GroupMemberCreate {
   @JsonKey(name: "is_host")
   bool isHost;
 
+  int status;
+
   GroupMemberCreate({
     required this.userId,
     required this.groupId,
     required this.isHost,
+    required this.status,
   });
 
   factory GroupMemberCreate.fromJson(Map<String, dynamic> json) =>
@@ -99,4 +102,29 @@ class GroupMemberUpdate {
       _$GroupMemberUpdateFromJson(json);
 
   Map<String, dynamic> toJson() => _$GroupMemberUpdateToJson(this);
+}
+
+@JsonSerializable()
+class GroupMemberCheck {
+  @JsonKey(name: "user_id")
+  int userId;
+
+  @JsonKey(name: "is_host")
+  bool isHost;
+
+  @JsonKey(name: "is_sub_host")
+  bool isSubHost;
+
+  int status;
+
+  GroupMemberCheck({
+    required this.userId,
+    required this.isHost,
+    required this.isSubHost,
+    required this.status,
+  });
+
+  factory GroupMemberCheck.fromJson(Map<String, dynamic> json) =>
+      _$GroupMemberCheckFromJson(json);
+  Map<String, dynamic> toJson() => _$GroupMemberCheckToJson(this);
 }

@@ -14,12 +14,16 @@ class Group {
   @JsonKey(name: "is_member_mute")
   bool isMemberMute;
 
+  @JsonKey(name: "members_count")
+  int? membersCount = 0;
+
   Group({
     required this.id,
     required this.subject,
     required this.avatar,
     required this.isPublic,
     required this.isMemberMute,
+    this.membersCount,
   });
 
   factory Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);

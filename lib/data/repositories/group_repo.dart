@@ -17,21 +17,25 @@ class GroupRepo {
     String keyword, {
     int page = 1,
   }) async {
-    return await _apiClient.groupApi.getGroups(keyword, page);
+    return _apiClient.groupApi.getGroups(keyword, page);
+  }
+
+  Future<ObjectResponse<Group>> getGroupById(int id) async {
+    return _apiClient.groupApi.getGroup(id);
   }
 
   Future<ObjectResponse<Group>> createGroup(GroupCreate groupCreate) async {
-    return await _apiClient.groupApi.createGroup(groupCreate);
+    return _apiClient.groupApi.createGroup(groupCreate);
   }
 
   Future<ObjectResponse<Group>> updateGroup(
     int id,
     GroupUpdate groupUpdate,
   ) async {
-    return await _apiClient.groupApi.updateGroup(id, groupUpdate);
+    return _apiClient.groupApi.updateGroup(id, groupUpdate);
   }
 
   Future<MessageResponse> deleteGroup(int id) async {
-    return await _apiClient.groupApi.deleteGroup(id);
+    return _apiClient.groupApi.deleteGroup(id);
   }
 }

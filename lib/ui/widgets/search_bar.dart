@@ -2,7 +2,7 @@ import 'package:chatting_app/ui/view_models/contact_view_model.dart';
 import 'package:chatting_app/ui/view_models/group_view_model.dart';
 import 'package:chatting_app/ui/view_models/search_view_model.dart';
 import 'package:chatting_app/ui/views/search/search.dart';
-import 'package:chatting_app/ui/widgets/group/group_create_screen.dart';
+import 'package:chatting_app/ui/views/group/group_create_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

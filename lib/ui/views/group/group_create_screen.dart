@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/ui/view_models/contact_view_model.dart';
+import 'package:chatting_app/ui/view_models/group_detail_view_model.dart';
 import 'package:chatting_app/ui/view_models/group_view_model.dart';
 import 'package:chatting_app/ui/view_models/search_view_model.dart';
+import 'package:chatting_app/ui/views/group/group_detail_screen.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -293,7 +296,7 @@ class GroupCreateDialogState extends State<GroupCreateScreen> {
   }
 
   void createGroup(GroupViewModel groupVM) async {
-    final snackBar;
+    final SnackBar snackBar;
     String? invalidMessage = validateGroupDetail(groupVM);
     if (invalidMessage != null) {
       snackBar = SnackBar(content: Text(invalidMessage));
@@ -308,9 +311,22 @@ class GroupCreateDialogState extends State<GroupCreateScreen> {
       } else {
         groupVM.clearCreateGroupData();
         snackBar = SnackBar(content: Text("Group created successfully"));
+        navigateToDetailScreen(group);
       }
     }
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void navigateToDetailScreen(Group group) {
+    Navigator.of(context).pushReplacement(
+      CupertinoPageRoute(
+        builder:
+            (context) => ChangeNotifierProvider(
+              create: (_) => GroupDetailViewModel(group),
+              child: GroupDetailScreen(),
+            ),
+      ),
+    );
   }
 
   @override

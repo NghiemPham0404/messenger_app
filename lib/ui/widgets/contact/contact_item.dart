@@ -1,7 +1,11 @@
 import 'package:chatting_app/data/models/contact.dart';
 import 'package:chatting_app/data/models/group.dart';
+import 'package:chatting_app/ui/view_models/group_detail_view_model.dart';
+import 'package:chatting_app/ui/views/group/group_detail_screen.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ContactItem extends StatelessWidget {
   final Function? onTap;
@@ -133,6 +137,19 @@ class GroupItem extends StatelessWidget {
       title: Text(group.subject, style: TextStyle(fontWeight: FontWeight.bold)),
       trailing: getTrailing(context),
       subtitle: getSubTitle(context),
+      onTap: () => navigateToDetailScreen(context, group),
+    );
+  }
+
+  void navigateToDetailScreen(BuildContext context, Group group) {
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoPageRoute(
+        builder:
+            (context) => ChangeNotifierProvider(
+              create: (_) => GroupDetailViewModel.fromId(group.id),
+              child: GroupDetailScreen(),
+            ),
+      ),
     );
   }
 

@@ -2,7 +2,7 @@
 
 part of 'group_view_model.dart';
 
-extension GroupMemberViewModel on GroupViewModel {
+extension GroupMemberInitViewModel on GroupViewModel {
   void addMemberSelection(int id, String? avatar) {
     _groupInitialUsers ??= [];
     _groupInitialUsers?.add(GroupMemberSelection(id: id, avatar: avatar));
@@ -40,8 +40,10 @@ extension GroupMemberViewModel on GroupViewModel {
       return group.result!;
     } on DioException catch (e) {
       debugPrint("[Group create] : ${e.response?.data["detail"] ?? "$e"}");
+      return null;
     } catch (e) {
       debugPrint("[Group create] : $e");
+      return null;
     }
   }
 
@@ -55,12 +57,13 @@ extension GroupMemberViewModel on GroupViewModel {
   }
 
   void addHostToGroup(int groupId, int userId) async {
-    addMemberToGroup(groupId, userId, isHost: true);
+    addMemberToGroup(groupId, userId, isHost: true, status: 1);
   }
 
   Future<GroupMember?> addMemberToGroup(
     int groupId,
     int userId, {
+    int status = 0,
     bool isHost = false,
   }) async {
     try {
@@ -68,6 +71,7 @@ extension GroupMemberViewModel on GroupViewModel {
         userId: userId,
         groupId: groupId,
         isHost: isHost,
+        status: status,
       );
       final response = await _groupMemberRepo.createGroupMember(
         groupId,
