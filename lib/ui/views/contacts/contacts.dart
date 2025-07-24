@@ -2,6 +2,7 @@ import 'package:chatting_app/data/models/contact.dart';
 import 'package:chatting_app/ui/view_models/contact_view_model.dart';
 import 'package:chatting_app/ui/view_models/group_view_model.dart';
 import 'package:chatting_app/ui/widgets/contact/contact_item.dart';
+import 'package:chatting_app/ui/widgets/group/group_item.dart';
 import 'package:chatting_app/ui/widgets/search_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -104,11 +105,14 @@ class ContactsPageState extends State<ContactsPage>
         ? Scaffold(body: Center(child: CircularProgressIndicator()))
         : SafeArea(
           child: Scaffold(
-            body: Column(
-              children: [
-                _getPendingList(context, viewModel),
-                _getFriendList(context, viewModel),
-              ],
+            body: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  _getPendingList(context, viewModel),
+                  _getFriendList(context, viewModel),
+                ],
+              ),
             ),
           ),
         );
@@ -133,22 +137,90 @@ class ContactsPageState extends State<ContactsPage>
   }
 
   Widget _groupPage(BuildContext context, GroupViewModel viewModel) {
-    if (viewModel.isLoading) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
-    } else {
-      final groups = viewModel.groupList?.results ?? [];
-      return Scaffold(
-        body: ListView.builder(
-          itemCount: groups.length,
-          itemBuilder: (context, index) => GroupItem(group: groups[index]),
+    return Scaffold(
+      body:
+          viewModel.isLoading
+              ? CircularProgressIndicator()
+              : SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    if (viewModel.joiningInvites.isNotEmpty)
+                      _getJoinInvites(viewModel),
+                    if (viewModel.userGroups.isNotEmpty)
+                      _getJoinedGroup(viewModel),
+                  ],
+                ),
+              ),
+    );
+  }
+
+  Widget _getJoinedGroup(GroupViewModel viewModel) {
+    final groups = viewModel.userGroups;
+    final totalGroups = viewModel.totalUserGroup;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            "All ($totalGroups)",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      );
-    }
+        Column(
+          children: List.generate(
+            groups.length,
+            (index) => GroupItem(group: groups[index]),
+          ),
+        ),
+        if (viewModel.userGroupHasNext)
+          ListTile(
+            title: Text("load more"),
+            onTap: () => viewModel.getUserGroupNext(),
+          ),
+      ],
+    );
+  }
+
+  Widget _getJoinInvites(GroupViewModel viewModel) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            "All Invites (${viewModel.totalInvites})",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Column(
+          children: List.generate(viewModel.joiningInvites.length, (index) {
+            final group = viewModel.joiningInvites[index];
+            final memberStatus = viewModel.memberStatusMap[group.id];
+            return GroupJoinningInviteItem(
+              group: group,
+              acceptInvite:
+                  () => viewModel.acceptRequest(
+                    group.id,
+                    memberStatus!.groupMemberId!,
+                  ),
+            );
+          }),
+        ),
+        if (viewModel.joiningInviteHasNext)
+          ListTile(
+            title: Text("load more"),
+            onTap: () => viewModel.getUserJoinningGroupInvitesNext(),
+          ),
+        Divider(thickness: 1, color: Theme.of(context).dividerColor),
+      ],
+    );
   }
 
   Widget _getPendingList(BuildContext context, ContactViewModel viewModel) {
     final pendingList = viewModel.pendingList?.results ?? [];
-    return pendingList.length == 0
+    return pendingList.isEmpty
         ? SizedBox.shrink()
         : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,17 +232,16 @@ class ContactsPageState extends State<ContactsPage>
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: pendingList.length,
-              itemBuilder:
-                  (context, index) => PendingRequestItem(
-                    key: Key('${pendingList[index].id}'),
-                    contact: pendingList[index],
-                    accept: (id) => viewModel.acceptRequest(id),
-                    dismiss: (id) => viewModel.dismissRequest(id),
-                  ),
+            Column(
+              children: List.generate(
+                pendingList.length,
+                (index) => PendingRequestItem(
+                  key: Key('${pendingList[index].id}'),
+                  contact: pendingList[index],
+                  accept: (id) => viewModel.acceptRequest(id),
+                  dismiss: (id) => viewModel.dismissRequest(id),
+                ),
+              ),
             ),
             Divider(thickness: 1, color: Theme.of(context).dividerColor),
           ],
@@ -182,47 +253,40 @@ class ContactsPageState extends State<ContactsPage>
     friendListAlphaBetGroup = groupByAlphabet(friendList);
     generateSortedKey();
 
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              "All (${friendList.length})",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            "All (${friendList.length})",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: List.generate(
-                  sortedKeys.length,
-                  (i) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(sortedKeys[i]),
-                      ),
-                      Column(
-                        children: List.generate(
-                          friendListAlphaBetGroup[sortedKeys[i]]!.length,
-                          (index) => FriendItem(
-                            contact:
-                                friendListAlphaBetGroup[sortedKeys[i]]![index],
-                          ),
-                        ),
-                      ),
-                    ],
+        ),
+        Column(
+          children: List.generate(
+            sortedKeys.length,
+            (i) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(sortedKeys[i]),
+                ),
+                Column(
+                  children: List.generate(
+                    friendListAlphaBetGroup[sortedKeys[i]]!.length,
+                    (index) => FriendItem(
+                      contact: friendListAlphaBetGroup[sortedKeys[i]]![index],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

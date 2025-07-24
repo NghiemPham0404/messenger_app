@@ -38,6 +38,7 @@ abstract class ContactService {
   @GET("/users/{id}/groups")
   Future<ListResponse<Group>> fetchUserGroup(
     @Path("id") int id,
+    @Query("status") int status,
     @Query("page") int page,
   );
 }

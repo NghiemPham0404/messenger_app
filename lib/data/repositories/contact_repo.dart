@@ -35,9 +35,10 @@ class ContactRepo {
 
   Future<ListResponse<Group>> fetchGroupRequests(
     int userId, {
+    int status = 1,
     int page = 1,
   }) async {
-    return await _apiClient.contactApi.fetchUserGroup(userId, page);
+    return await _apiClient.contactApi.fetchUserGroup(userId, status, page);
   }
 
   Future<ObjectResponse<Contact>> sendContactRequest(
