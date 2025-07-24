@@ -40,10 +40,12 @@ class GroupMemberRepo {
 
   Future<ObjectResponse<GroupMember>> updateGroupMember(
     int groupId,
+    int groupMemberId,
     GroupMemberUpdate groupMemberUpdate,
   ) async {
     return _apiClient.groupMemberApi.updateGroupMember(
       groupId,
+      groupMemberId,
       groupMemberUpdate,
     );
   }

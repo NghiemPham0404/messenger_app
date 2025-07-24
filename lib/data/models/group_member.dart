@@ -17,7 +17,7 @@ class GroupMember {
   @JsonKey(name: "group_id")
   int groupId;
 
-  int? id;
+  int id;
 
   @JsonKey(name: "is_host")
   bool isHost;
@@ -30,7 +30,7 @@ class GroupMember {
   GroupMember({
     required this.userId,
     required this.groupId,
-    this.id,
+    required this.id,
     required this.isHost,
     required this.isSubHost,
     required this.status,
@@ -115,9 +115,13 @@ class GroupMemberCheck {
   @JsonKey(name: "is_sub_host")
   bool isSubHost;
 
+  @JsonKey(name: "group_member_id")
+  int? groupMemberId;
+
   int status;
 
   GroupMemberCheck({
+    this.groupMemberId,
     required this.userId,
     required this.isHost,
     required this.isSubHost,

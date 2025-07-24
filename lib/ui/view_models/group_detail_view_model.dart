@@ -1,4 +1,5 @@
 import 'package:chatting_app/data/models/group.dart';
+import 'package:chatting_app/data/models/group_member.dart';
 import 'package:chatting_app/data/repositories/auth_repo.dart';
 import 'package:chatting_app/data/repositories/group_member_repo.dart';
 import 'package:chatting_app/data/repositories/group_repo.dart';
@@ -12,6 +13,7 @@ class GroupDetailViewModel extends ChangeNotifier {
   final _fileRepo = MediaFileRepo();
 
   final _groupMemberRepo = GroupMemberRepo();
+  final _authRepo = AuthRepo();
 
   late Group group;
 
@@ -24,11 +26,13 @@ class GroupDetailViewModel extends ChangeNotifier {
   bool _loadingAvatar = false;
   bool get loadingAvatar => _loadingAvatar;
 
-  bool _loading = false;
+  bool _loading = true;
   bool get loading => _loading;
 
   String? _error;
   String? get error => _error;
+
+  late GroupMemberCheck groupMemberStatus;
 
   void setError(String? error) {
     _error = error;
@@ -40,6 +44,14 @@ class GroupDetailViewModel extends ChangeNotifier {
     try {
       final response = await _groupRepo.getGroupById(id);
       group = response.result!;
+
+      /// get group member status of current user to
+      /// know if current login user is admin or subadmin or not
+      final memberStatusResponse = await getGroupMemberStatus(
+        id,
+        _authRepo.currentUser!.id,
+      );
+      groupMemberStatus = memberStatusResponse;
     } on DioException catch (e) {
       final detail =
           e.response!.data["detail"] ?? "fail to get group infomations";
@@ -51,6 +63,13 @@ class GroupDetailViewModel extends ChangeNotifier {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  /// get group member status of current user to
+  /// know if current login user is admin or subadmin or not
+  Future<GroupMemberCheck> getGroupMemberStatus(int groupId, int userId) async {
+    final response = await _groupMemberRepo.checkGroupMember(groupId, [userId]);
+    return response.results![0];
   }
 
   void updateGroupAvatar(int id, XFile? avatarFile) async {
@@ -124,7 +143,61 @@ class GroupDetailViewModel extends ChangeNotifier {
     }
   }
 
-  void leaveGroup(int groupMemberId) {
-    _groupMemberRepo.deleteGroupMember(group.id, groupMemberId);
+  Future<bool> leaveGroup() async {
+    try {
+      _loading = true;
+      final groupMemberUpdate = GroupMemberUpdate(
+        isHost: groupMemberStatus.isHost,
+        isSubHost: groupMemberStatus.isSubHost,
+        status: 3,
+      );
+      final response = await _groupMemberRepo.updateGroupMember(
+        group.id,
+        groupMemberStatus.groupMemberId!,
+        groupMemberUpdate,
+      );
+      return response.success;
+    } on DioException catch (e) {
+      final detail = e.response!.data["detail"].toString();
+      setError("leave group unsuccessfully, pls try again");
+      debugPrint(" [Group-detail--leave group] error : $detail");
+      return false;
+    } catch (e) {
+      debugPrint(" [Group-detail--leave group] error : $e");
+      return false;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  void requestJoinGroup(int groupId, int userId) async {
+    try {
+      final sentRequest = GroupMemberCreate(
+        userId: userId,
+        groupId: groupId,
+        isHost: false,
+        status: 2,
+      );
+      final response = await _groupMemberRepo.createGroupMember(
+        groupId,
+        sentRequest,
+      );
+      if (response.success) {
+        groupMemberStatus.groupMemberId = response.result!.id;
+        groupMemberStatus.status = 2;
+      }
+    } on DioException catch (e) {
+      String detail = e.response!.data["detail"].toString();
+      _error =
+          "error happens when request joinning group, $detail , please try again";
+      debugPrint(
+        "[Group - add sent request]  error happens when request joinning group userId = $userId",
+      );
+    } catch (e) {
+      debugPrint("[Group - add sent request] $e");
+    } finally {
+      notifyListeners();
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:chatting_app/data/models/group_member.dart';
 import 'package:chatting_app/ui/widgets/avatar.dart';
+import 'package:chatting_app/ui/widgets/group_member/group_member_action.dart';
 import 'package:flutter/material.dart';
 
 abstract class GroupMemberBaseItem extends StatelessWidget {
@@ -11,7 +12,7 @@ abstract class GroupMemberBaseItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = groupMember.member;
     return ListTile(
-      onLongPress: () => onLongPress,
+      onLongPress: () => onLongPress(context),
       minTileHeight: 80,
       leading: SizedBox(
         width: 64,
@@ -35,12 +36,22 @@ abstract class GroupMemberBaseItem extends StatelessWidget {
     return SizedBox.shrink();
   }
 
-  void onLongPress() {}
+  void onLongPress(BuildContext context) {}
 }
 
 class GroupMemberItem extends GroupMemberBaseItem {
   final bool isMe;
-  const GroupMemberItem(super.groupMember, {required this.isMe, super.key});
+  final bool isAdminOrSubAdmin;
+  final Function? grantSubHost;
+  final Function? deleteMember;
+  const GroupMemberItem(
+    super.groupMember,
+    this.isAdminOrSubAdmin, {
+    required this.isMe,
+    this.grantSubHost,
+    this.deleteMember,
+    super.key,
+  });
 
   @override
   Widget getSubTitle(BuildContext context) {
@@ -61,19 +72,48 @@ class GroupMemberItem extends GroupMemberBaseItem {
       return Text("");
     }
   }
+
+  @override
+  void onLongPress(BuildContext context) {
+    if (!isMe && isAdminOrSubAdmin) {
+      showGroupMemberOptions(
+        context,
+        groupMember,
+        grantSubHost: grantSubHost,
+        deleteMember: deleteMember,
+      );
+    }
+  }
 }
 
 class GroupSentRequestItem extends GroupMemberBaseItem {
-  const GroupSentRequestItem(super.groupMember, {super.key});
+  final Function cancelSentRequest;
+
+  const GroupSentRequestItem(
+    super.groupMember,
+    this.cancelSentRequest, {
+    super.key,
+  });
 
   @override
   Widget getTrailing(BuildContext context) {
-    return ElevatedButton(onPressed: () {}, child: Text("Cancel"));
+    return ElevatedButton(
+      onPressed: () => cancelSentRequest(),
+      child: Text("Cancel"),
+    );
   }
 }
 
 class GroupWaitingReqestItem extends GroupMemberBaseItem {
-  const GroupWaitingReqestItem(super.groupMember, {super.key});
+  final Function acceptJoiningRequest;
+  final Function declineJoiningRequest;
+
+  const GroupWaitingReqestItem(
+    super.groupMember,
+    this.acceptJoiningRequest,
+    this.declineJoiningRequest, {
+    super.key,
+  });
 
   @override
   Widget getSubTitle(BuildContext context) {
@@ -82,13 +122,16 @@ class GroupWaitingReqestItem extends GroupMemberBaseItem {
       spacing: 5,
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () => acceptJoiningRequest(),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
           ),
           child: Text("Accept"),
         ),
-        ElevatedButton(onPressed: () {}, child: Text("Decline")),
+        ElevatedButton(
+          onPressed: () => declineJoiningRequest(),
+          child: Text("Decline"),
+        ),
       ],
     );
   }

@@ -41,15 +41,33 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
   }
 
   Widget buildBody(GroupDetailViewModel groupDetailVM) {
+    bool adminOrSubAdmin =
+        groupDetailVM.groupMemberStatus.isHost ||
+        groupDetailVM.groupMemberStatus.isSubHost;
+    bool isMember = groupDetailVM.groupMemberStatus.status == 1;
     return SizedBox(
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _getGroupMainInfo(groupDetailVM),
+          _getGroupMainInfo(groupDetailVM, isAdminOrSubAdmin: adminOrSubAdmin),
           SizedBox(height: 30),
           Divider(),
-          _getGroupOptionsMenu(groupDetailVM),
+          if (isMember)
+            _getGroupOptionsMenu(
+              groupDetailVM,
+              isAdminOrSubAdmin: adminOrSubAdmin,
+            ),
+          if (!isMember && groupDetailVM.groupMemberStatus.status == -1)
+            ElevatedButton.icon(
+              icon: Icon(Icons.person_add),
+              onPressed:
+                  () => groupDetailVM.requestJoinGroup(
+                    groupDetailVM.group.id,
+                    groupDetailVM.groupMemberStatus.userId,
+                  ),
+              label: Text("Join"),
+            ),
         ],
       ),
     );
@@ -68,7 +86,10 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
     );
   }
 
-  Widget _getGroupMainInfo(GroupDetailViewModel groupDetailVM) {
+  Widget _getGroupMainInfo(
+    GroupDetailViewModel groupDetailVM, {
+    bool isAdminOrSubAdmin = false,
+  }) {
     final group = groupDetailVM.group;
     return Column(
       children: [
@@ -90,84 +111,101 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
                   ),
                 ),
               ),
-              Align(
-                alignment: AlignmentGeometry.xy(3, 3),
-                child: IconButton(
-                  onPressed: () => _pickNewAvatar(groupDetailVM),
-                  icon: Icon(Icons.camera_alt),
+              if (isAdminOrSubAdmin)
+                Align(
+                  alignment: AlignmentGeometry.xy(3, 3),
+                  child: IconButton(
+                    onPressed: () => _pickNewAvatar(groupDetailVM),
+                    icon: Icon(Icons.camera_alt),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(group.subject),
-            IconButton(
-              onPressed: () => _showGroupEditDialog(groupDetailVM),
-              icon: Icon(Icons.edit),
+            Text(
+              group.subject,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
+            if (isAdminOrSubAdmin)
+              IconButton(
+                onPressed: () => _showGroupEditDialog(groupDetailVM),
+                icon: Icon(Icons.edit),
+              ),
           ],
         ),
         Container(
           padding: EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColorDark,
-            borderRadius: BorderRadius.circular(8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                " ${group.isPublic ? "Community" : "Private"} group ",
+                style: TextStyle(color: Theme.of(context).primaryColorDark),
+              ),
+              Icon(
+                group.isPublic ? Icons.public : Icons.lock,
+                color: Theme.of(context).primaryColorDark,
+                size: 16,
+              ),
+            ],
           ),
-          child: Text(group.isPublic ? "Community" : "Private"),
         ),
       ],
     );
   }
 
-  Widget _getGroupOptionsMenu(GroupDetailViewModel groupDetailVM) {
+  Widget _getGroupOptionsMenu(
+    GroupDetailViewModel groupDetailVM, {
+    bool isAdminOrSubAdmin = false,
+  }) {
     final membersCount = groupDetailVM.group.membersCount ?? 0;
 
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextButton.icon(
-            icon: Icon(
-              Icons.people,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-            onPressed: () => _navigateToMemberScreen(),
-            label: Text(
-              "Members ${membersCount > 0 ? '($membersCount)' : ''}",
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          leading: Icon(
+            Icons.people,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          TextButton.icon(
-            icon: Icon(
-              Icons.logout,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-            onPressed: () {},
-            label: Text(
-              "Leave group",
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
+          title: Text(
+            "Members ${membersCount > 0 ? '($membersCount)' : ''}",
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
-          TextButton.icon(
-            icon: Icon(
+          onTap: _navigateToMemberScreen,
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.logout,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          title: Text(
+            "Leave group",
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+          onTap: () async {
+            bool result = await groupDetailVM.leaveGroup();
+            if (result) {
+              Navigator.pop(context);
+            }
+          },
+        ),
+        if (isAdminOrSubAdmin)
+          ListTile(
+            leading: Icon(
               Icons.delete_outline,
               color: Theme.of(context).colorScheme.error,
             ),
-            style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-            onPressed: () => _deleteGroup(groupDetailVM),
-            label: Text(
+            title: Text(
               "Delete conversation",
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
+            onTap: () => _deleteGroup(groupDetailVM),
           ),
-        ],
-      ),
+      ],
     );
   }
 

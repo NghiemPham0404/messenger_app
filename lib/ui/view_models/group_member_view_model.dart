@@ -1,6 +1,9 @@
+import 'package:chatting_app/data/models/contact.dart';
 import 'package:chatting_app/data/models/group_member.dart';
 import 'package:chatting_app/data/repositories/auth_repo.dart';
+import 'package:chatting_app/data/repositories/contact_repo.dart';
 import 'package:chatting_app/data/repositories/group_member_repo.dart';
+import 'package:chatting_app/data/responses/list_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -10,6 +13,7 @@ part 'group_member_view_model.waiting_request.dart';
 
 class GroupMemberViewModel extends ChangeNotifier {
   final _groupMemberRepo = GroupMemberRepo();
+  final _contactRepo = ContactRepo();
   final _authRepo = AuthRepo();
 
   int get userId => _authRepo.currentUser!.id;
@@ -18,6 +22,7 @@ class GroupMemberViewModel extends ChangeNotifier {
     getGroupMembers(groupId, 1);
     getGroupSentRequests(groupId, 1);
     getGroupWaitingRequests(groupId, 1);
+    checkPreSendRequest(groupId);
   }
 
   // Attributes for group members manage
@@ -51,6 +56,15 @@ class GroupMemberViewModel extends ChangeNotifier {
 
   int _sentRequestPage = 0;
   int get sentRequestPage => _sentRequestPage;
+
+  ListResponse<Contact>? _friendList;
+  ListResponse<Contact>? get friendList => _friendList;
+
+  Map<int, GroupMemberCheck> _checkedGroupMembers = {};
+  Map<int, GroupMemberCheck> get checkedGroupMembers => _checkedGroupMembers;
+
+  List<GroupMemberSelection>? _addtionalUsers;
+  List<GroupMemberSelection>? get addtionalUsers => _addtionalUsers;
 
   // Attributes for pending group joining requests from user
   bool _loadingWaitingRequest = false;

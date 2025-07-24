@@ -32,6 +32,38 @@ extension GroupMemberViewModelWaitingRequest on GroupMemberViewModel {
     getGroupWaitingRequests(groupId, _waitingRequestPage + 1);
   }
 
+  void acceptRequest(int groupId, int groupMemberId) async {
+    try {
+      final groupMemberUpdate = GroupMemberUpdate(
+        isHost: false,
+        isSubHost: false,
+        status: 1,
+      );
+      final response = await _groupMemberRepo.updateGroupMember(
+        groupId,
+        groupMemberId,
+        groupMemberUpdate,
+      );
+      if (response.success) {
+        int index = _waitingRequests.indexWhere(
+          (item) => item.id == groupMemberId,
+        );
+        _waitingRequests.removeAt(index);
+
+        _groupMembers.add(response.result!);
+      }
+    } on DioException catch (e) {
+      String detail = e.response!.data["detail"].toString();
+      _errorMembers = "error happens when read group members, please try again";
+      debugPrint("[Group member - accept joining request] $detail");
+    } catch (e) {
+      debugPrint("[Group member - accept joining request] $e");
+    } finally {
+      _loadingMembers = false;
+      notifyListeners();
+    }
+  }
+
   void declineRequest(int groupId, int requestId) async {
     try {
       final response = await _groupMemberRepo.deleteGroupMember(
@@ -45,9 +77,9 @@ extension GroupMemberViewModelWaitingRequest on GroupMemberViewModel {
       String detail = e.response!.data["detail"].toString();
       _errorWaitingRequest =
           "error happens when read group members, please try again";
-      debugPrint("[Group - cancel sent request] $detail");
+      debugPrint("[Group member - cancel sent request] $detail");
     } catch (e) {
-      debugPrint("[Group - cancel sent request] $e");
+      debugPrint("[Group member - cancel sent request] $e");
     } finally {
       _loadingWaitingRequest = false;
       notifyListeners();

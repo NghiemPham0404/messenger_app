@@ -41,6 +41,7 @@ extension GroupMemberViewModelMembers on GroupMemberViewModel {
       );
       final response = await _groupMemberRepo.updateGroupMember(
         groupId,
+        groupMemberId,
         groupMemberUpdate,
       );
       if (response.success) {
@@ -52,9 +53,9 @@ extension GroupMemberViewModelMembers on GroupMemberViewModel {
     } on DioException catch (e) {
       String detail = e.response!.data["detail"].toString();
       _errorMembers = "error happens when read group members, please try again";
-      debugPrint("[Group - delete member] $detail");
+      debugPrint("[Group member - grant subhost] $detail");
     } catch (e) {
-      debugPrint("[Group - delete member] $e");
+      debugPrint("[Group member - grant subhost] $e");
     } finally {
       _loadingMembers = false;
       notifyListeners();

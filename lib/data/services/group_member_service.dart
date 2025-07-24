@@ -35,9 +35,10 @@ abstract class GroupMemberService {
     @Query("user_ids") List<int> userIds,
   );
 
-  @POST("/groups/{group_id}/members")
+  @PUT("/groups/{group_id}/members/{group_member_id}")
   Future<ObjectResponse<GroupMember>> updateGroupMember(
     @Path("group_id") int groupId,
+    @Path("group_member_id") int groupMemberId,
     @Body() GroupMemberUpdate groupMemberUpdate,
   );
 
