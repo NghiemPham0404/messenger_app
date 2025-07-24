@@ -1,9 +1,10 @@
 // ignore_for_file: unused_import
 
-import 'package:chatting_app/data/models/groups.dart';
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/data/network/api_url_provider.dart';
 import 'package:chatting_app/data/services/auth_service.dart';
 import 'package:chatting_app/data/services/contact_service.dart';
+import 'package:chatting_app/data/services/group_member_service.dart';
 import 'package:chatting_app/data/services/group_service.dart';
 import 'package:chatting_app/data/services/media_file_service.dart';
 import 'package:chatting_app/data/services/message_service.dart';
@@ -49,6 +50,7 @@ class ApiClient {
   ContactService? _contactApi;
   ConversationService? _conversationApi;
   GroupService? _groupApi;
+  GroupMemberService? _groupMemberService;
   MediaFileService? _mediaFileService;
   MessageService? _messageApi;
   UserService? _userApi;
@@ -66,6 +68,7 @@ class ApiClient {
     _contactApi = ContactService(_dio!);
     _conversationApi = ConversationService(_dio!);
     _groupApi = GroupService(_dio!);
+    _groupMemberService = GroupMemberService(_dio!);
     _messageApi = MessageService(_dio!);
     _userApi = UserService(_dio!);
 
@@ -77,6 +80,7 @@ class ApiClient {
     _contactApi = null;
     _conversationApi = null;
     _groupApi = null;
+    _groupMemberService = null;
     _mediaFileService = null;
     _messageApi = null;
     _userApi = null;
@@ -105,6 +109,13 @@ class ApiClient {
       throw Exception('groupApi initialized. Call initialize() first.');
     }
     return _groupApi!;
+  }
+
+  GroupMemberService get groupMemberApi {
+    if (_groupApi == null) {
+      throw Exception('groupApi initialized. Call initialize() first.');
+    }
+    return _groupMemberService!;
   }
 
   MediaFileService get mediaFileApi {

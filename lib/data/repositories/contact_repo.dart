@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/data/models/groups.dart';
+import 'package:chatting_app/data/models/group.dart';
 import 'package:chatting_app/data/network/api_client.dart';
 import 'package:chatting_app/data/responses/list_response.dart';
 import 'package:chatting_app/data/responses/message_response.dart';
