@@ -178,6 +178,11 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
           onTap: _navigateToMemberScreen,
         ),
         ListTile(
+          leading: Icon(Icons.chat_bubble_outline_outlined),
+          title: Text("join conversation"),
+          onTap: () => _navigateToChatView(groupDetailVM.group.id),
+        ),
+        ListTile(
           leading: Icon(
             Icons.logout,
             color: Theme.of(context).colorScheme.error,
@@ -193,6 +198,7 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
             }
           },
         ),
+
         if (isAdminOrSubAdmin)
           ListTile(
             leading: Icon(
@@ -259,4 +265,6 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
       ),
     );
   }
+
+  void _navigateToChatView(int groupId) {}
 }

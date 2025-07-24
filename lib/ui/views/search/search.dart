@@ -1,6 +1,6 @@
 import 'package:chatting_app/ui/view_models/contact_view_model.dart';
 import 'package:chatting_app/ui/view_models/search_view_model.dart';
-import 'package:chatting_app/ui/widgets/avatar.dart';
+import 'package:chatting_app/ui/widgets/search/search_group_item.dart';
 import 'package:chatting_app/ui/widgets/search/search_user_item.dart';
 import 'package:chatting_app/ui/widgets/search_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -148,12 +148,8 @@ class SearchPageState extends State<SearchPage> {
           ),
           Column(
             children: List.generate(searchViewModel.groups.length, (index) {
-              final result = searchViewModel.groups[index];
-              return ListTile(
-                key: Key(result.id.toString()),
-                leading: getAvatar(result.avatar, seed: result.subject),
-                title: Text(result.subject),
-              );
+              final group = searchViewModel.groups[index];
+              return SearchGroupItem(group: group);
             }),
           ),
           searchViewModel.groupsMore
