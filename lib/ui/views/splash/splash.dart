@@ -62,6 +62,7 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return CupertinoPageScaffold(
       child: SafeArea(
         child: Scaffold(
@@ -71,10 +72,17 @@ class SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    "assets/images/app_logo.png",
+                  Container(
                     width: 86,
                     height: 86,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color:
+                          isDarkMode
+                              ? null
+                              : Theme.of(context).colorScheme.onSurface,
+                    ),
+                    child: Image.asset("assets/images/app_logo.png", width: 64),
                   ),
                   Text(
                     "Messenger app",

@@ -136,13 +136,18 @@ class LoginPageState extends State<LoginPage> {
   }
 
   Widget _appIconHeader() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         SizedBox(height: 64),
-        SizedBox(
-          width: 96,
-          height: 96,
-          child: Image(image: AssetImage("assets/images/app_logo.png")),
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: isDarkMode ? null : Theme.of(context).colorScheme.onSurface,
+          ),
+          child: Image.asset("assets/images/app_logo.png", width: 48),
         ),
         Text(
           "Messenger app",
