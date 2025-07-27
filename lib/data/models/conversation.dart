@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'conversation.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Conversation {
   String id;
 
@@ -29,6 +29,8 @@ class Conversation {
   @JsonKey(name: "sender")
   Sender sender;
 
+  int? uncheckedCount = 0;
+
   Conversation({
     required this.id,
     required this.displayName,
@@ -37,6 +39,7 @@ class Conversation {
     this.groupId,
     this.receiverId,
     this.content,
+    this.uncheckedCount,
     required this.timestamp,
     required this.sender,
   });

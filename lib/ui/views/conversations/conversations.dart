@@ -35,9 +35,10 @@ class ConversationsPageState extends State<ConversationsPage> {
             child: SafeArea(
               child: Scaffold(
                 appBar: AppBar(title: _getHeader()),
-                body: Column(
-                  children: [Expanded(child: _getConversationList(viewModel))],
-                ),
+                body:
+                    viewModel.userConversations.isEmpty && !viewModel.isLoading
+                        ? _emptyConversationsPage()
+                        : _getConversationList(viewModel),
               ),
             ),
           ),
@@ -48,11 +49,35 @@ class ConversationsPageState extends State<ConversationsPage> {
     return SearchAppBar();
   }
 
+  Widget _emptyConversationsPage() {
+    return Center(child: Text("please start a new conversation"));
+  }
+
   Widget _getConversationList(ConversationsViewModel viewModel) {
-    return ConversationList(
-      viewModel.userConversations,
-      viewModel.currentUserId,
-      (index) => _navigateToChatView(viewModel.userConversations[index]),
+    List<Conversation> conversations = viewModel.userConversations;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        viewModel.requestUserConversation();
+      },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(), // Important!
+        itemCount: conversations.length + (viewModel.isLoading ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (viewModel.isLoading && index == conversations.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          return ConversationListTile(
+            conversations[index],
+            () => _navigateToChatView(conversations[index]),
+            viewModel.currentUserId,
+          );
+        },
+      ),
     );
   }
 

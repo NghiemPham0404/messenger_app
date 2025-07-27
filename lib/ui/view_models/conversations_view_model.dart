@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:chatting_app/data/models/conversation.dart';
 import 'package:chatting_app/data/repositories/auth_repo.dart';
 import 'package:chatting_app/data/repositories/conversation_repo.dart';
@@ -12,27 +10,8 @@ class ConversationsViewModel extends ChangeNotifier {
 
   int get currentUserId => _authRepo.currentUser!.id;
 
-  StreamSubscription? _conversationSubscription;
-
   ConversationsViewModel() {
     requestUserConversation();
-    listenToConversationStream();
-  }
-
-  void listenToConversationStream() {
-    _setLoading(true);
-    _conversationSubscription?.cancel();
-    _conversationSubscription = _conversationRepo.userConversation.listen(
-      (newConversations) {
-        _conversations = newConversations;
-        _setError(null);
-        _setLoading(false);
-      },
-      onError: (error) {
-        _setError("Failed to get conversations : ${error.toString()}");
-        _setLoading(false);
-      },
-    );
   }
 
   List<Conversation> _conversations = [];
@@ -53,9 +32,19 @@ class ConversationsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void requestUserConversation() {
-    if (_authRepo.currentUser != null) {
-      _conversationRepo.requestUserConversations(_authRepo.currentUser!.id);
+  void requestUserConversation() async {
+    _conversations = [];
+    _setLoading(true);
+    try {
+      if (_authRepo.currentUser != null) {
+        _conversations = await _conversationRepo.requestUserConversations(
+          _authRepo.currentUser!.id,
+        );
+      }
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
     }
   }
 

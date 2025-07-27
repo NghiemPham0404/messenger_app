@@ -4,15 +4,39 @@ import 'package:chatting_app/ui/views/contacts/contacts.dart';
 import 'package:chatting_app/ui/views/conversations/conversations.dart';
 import 'package:chatting_app/ui/views/settings/setting.dart';
 import 'package:chatting_app/ui/views/splash/splash.dart';
+import 'package:chatting_app/util/local_notification_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'package:chatting_app/util/fcm_message.dart';
+
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // get environment variables
   await dotenv.load();
+
+  // init firebase
   await Firebase.initializeApp();
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  // init firebase- messaging
+  await LocalNotificationService.requestNotificationPermission();
+
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  debugPrint("[FCM TOKEN] $fcmToken");
+
+  // init hive
+  final dir = await getApplicationDocumentsDirectory();
+  Hive.init(dir.path);
+
+  // run app
   runApp(const MyApp());
 }
 

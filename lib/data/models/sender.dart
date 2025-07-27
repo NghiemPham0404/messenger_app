@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'sender.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Sender {
   late int id;
   late String name;

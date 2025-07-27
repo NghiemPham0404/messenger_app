@@ -2,32 +2,6 @@ import 'package:chatting_app/data/models/conversation.dart';
 import 'package:chatting_app/util/format_readable_date.dart';
 import 'package:flutter/material.dart';
 
-class ConversationList extends StatelessWidget {
-  final List<Conversation> conversations;
-  final int currentUserId;
-  final Function(int) onTap;
-
-  const ConversationList(
-    this.conversations,
-    this.currentUserId,
-    this.onTap, {
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: conversations.length,
-      itemBuilder:
-          (context, index) => ConversationListTile(
-            conversations[index],
-            () => onTap(index),
-            currentUserId,
-          ),
-    );
-  }
-}
-
 class ConversationListTile extends StatelessWidget {
   final int currentUserId;
   final Conversation _conversation;
@@ -47,7 +21,7 @@ class ConversationListTile extends StatelessWidget {
       leading: _getAvatar(),
       title: _getTitle(),
       subtitle: _getSubTitle(),
-      trailing: _getTrailing(),
+      trailing: _getTrailing(context),
       onTap: () => onTap(),
     );
   }
@@ -79,7 +53,11 @@ class ConversationListTile extends StatelessWidget {
     } else if (_conversation.receiverId == currentUserId) {
       stringBuffer.write("${_conversation.sender.name}: ");
     }
-    stringBuffer.write(_conversation.content);
+    if (_conversation.content != null) {
+      stringBuffer.write(_conversation.content);
+    } else {
+      stringBuffer.write("[media file]");
+    }
     return stringBuffer.toString();
   }
 
@@ -87,23 +65,43 @@ class ConversationListTile extends StatelessWidget {
     return Text(_getLastMessage());
   }
 
-  Widget? _getTrailing() {
+  Widget? _getTrailing(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(formatReadableDate(_conversation.timestamp)),
-        SizedBox(
-          width: 10,
-          height: 10,
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 253, 75, 75),
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-        ),
+        _getUncheckIndicator(),
       ],
     );
+  }
+
+  Widget _getUncheckIndicator() {
+    final count = _conversation.uncheckedCount ?? 0;
+
+    return switch (count) {
+      0 => const SizedBox.shrink(),
+      1 => Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 253, 75, 75),
+          borderRadius: BorderRadius.circular(5),
+        ),
+      ),
+      _ => Container(
+        width: 20,
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 253, 75, 75),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Text(
+            count <= 5 ? "$count" : "5+",
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+    };
   }
 }
