@@ -20,6 +20,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
+  late final Function() _scrollListener;
 
   final _webSocketService = WebSocketService();
   StreamSubscription? _webSocketSubscription;
@@ -35,11 +36,12 @@ class _ChatPageState extends State<ChatPage> {
       final viewModel = Provider.of<ChatViewModel>(context, listen: false);
       viewModel.initialize();
       observeChange(viewModel);
+      _scrollListener = () => _onScroll(viewModel);
+      _scrollController.addListener(_scrollListener);
     });
 
     // Add a listener to the scroll controller to detect when the user
     // has scrolled to the top of the list.
-    _scrollController.addListener(_onScroll);
   }
 
   void observeChange(ChatViewModel chatViewModel) {
@@ -59,18 +61,16 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     // Always dispose of controllers to prevent memory leaks.
-    _scrollController.removeListener(_onScroll);
+    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _webSocketService.leaveGroup();
     super.dispose();
   }
 
-  void _onScroll() {
+  void _onScroll(ChatViewModel viewModel) {
     // Check if we are at the top of the list
     if (_scrollController.position.atEdge &&
         _scrollController.position.pixels != 0) {
-      final viewModel = Provider.of<ChatViewModel>(context, listen: false);
-      // Prevent multiple requests while one is already in progress
       if (!viewModel.isLoading) {
         viewModel.requestOlderMessages();
       }

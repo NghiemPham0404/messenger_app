@@ -9,6 +9,7 @@ import 'package:chatting_app/data/repositories/auth_repo.dart';
 import 'package:chatting_app/data/repositories/conversation_repo.dart';
 import 'package:chatting_app/data/repositories/media_file_repo.dart';
 import 'package:chatting_app/data/repositories/message_repo.dart';
+import 'package:chatting_app/ui/view_models/chat_strategy.dart';
 import 'package:chatting_app/util/format_readable_date.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +25,8 @@ class ChatViewModel extends ChangeNotifier {
   final AuthRepo _authRepo = AuthRepo();
   final MediaFileRepo _mediaFileRepo = MediaFileRepo();
 
+  late final ChatStrategy _chatStrategy;
+
   late final Conversation _conversation;
   Conversation? get conversation => _conversation;
 
@@ -36,7 +39,13 @@ class ChatViewModel extends ChangeNotifier {
   List<Message> _messages = [];
   List<Message> get messages => _messages;
 
-  bool _isLoading = false;
+  int _currentPage = 0;
+  int get currentPage => _currentPage;
+
+  bool _hasPre = false;
+  bool get hasPre => _hasPre;
+
+  bool _isLoading = true;
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
@@ -44,40 +53,34 @@ class ChatViewModel extends ChangeNotifier {
 
   ChatViewModel(Conversation conversation) {
     _conversation = conversation;
+
     if (conversation.groupId != null) {
       groupId = conversation.groupId!;
-    }
-
-    if (conversation.receiverId != null) {
+      _chatStrategy = GroupChatStrategy(
+        userId: userId,
+        groupId: groupId!,
+        conversationRepo: _conversationRepo,
+        messageRepo: messageRepo,
+      );
+    } else if (conversation.receiverId != null) {
       otherUserId =
           (conversation.userId == userId)
               ? conversation.receiverId!
               : conversation.userId;
+
+      _chatStrategy = DirectChatStrategy(
+        userId: userId,
+        receiverId: otherUserId!,
+        conversationRepo: _conversationRepo,
+        messageRepo: messageRepo,
+      );
+    } else {
+      throw Exception("Invalid conversation type.");
     }
   }
 
   void initialize() {
-    // 1. Start listening to the stream for incoming messages
-    _listenToMessageStream();
-
-    // 2. Request the initial batch of messages for the specific conversation
     requestMessages();
-  }
-
-  void _listenToMessageStream() {
-    _setLoading(true);
-    _messageSubscription?.cancel();
-    _messageSubscription = _conversationRepo.conversationMessage.listen(
-      (newMessage) {
-        _messages = newMessage;
-        _setLoading(false);
-        _setError(null);
-      },
-      onError: (error) {
-        _setError("[Messages] : ${error.toString()}");
-        _setLoading(false);
-      },
-    );
   }
 
   void _setError(String? message) async {
@@ -94,29 +97,30 @@ class ChatViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void requestMessages() {
+  void requestMessages({int page = 1}) async {
     _setLoading(true);
-    if (otherUserId != null) {
-      _conversationRepo.requestDirectConversation(
-        userId: userId,
-        otherUserId: otherUserId!,
-      );
-    }
-    if (groupId != null) {
-      _conversationRepo.requestGroupConversation(groupId: groupId!);
+    try {
+      final response = await _chatStrategy.requestMessages(page: page);
+      _currentPage = response.page ?? 0;
+      _hasPre = (response.page ?? 0) < (response.totalPages ?? 0);
+      if (response.page == 1) {
+        _messages = response.results ?? [];
+      } else {
+        _messages.addAll(response.results ?? []);
+      }
+    } on DioException catch (e) {
+      final detail = e.response?.data["detail"];
+      debugPrint(detail);
+    } catch (e) {
+      debugPrint("$e");
+    } finally {
+      _setLoading(false);
     }
   }
 
   void requestOlderMessages() {
-    _setLoading(true);
-    if (otherUserId != null) {
-      _conversationRepo.requestOlderDirectConversation(
-        userId: _authRepo.currentUser!.id,
-        otherUserId: otherUserId!,
-      );
-    }
-    if (groupId != null) {
-      _conversationRepo.requestOlderGroupConversation(groupId!);
+    if (_hasPre) {
+      requestMessages(page: currentPage + 1);
     }
   }
 
@@ -146,26 +150,20 @@ class ChatViewModel extends ChangeNotifier {
     String? text,
     FileMetadata? file,
     List<String>? images,
-  }) {
-    if (groupId != null) {
-      sendGroupMessage(
-        userId: userId,
-        groupId: groupId!,
-        timeStamp: currentTimeIsoString,
-        messageContent: text,
-        file: file,
-        images: images,
-      );
-    }
-    if (otherUserId != null) {
-      sendDirectMessage(
-        userId: userId,
-        receiverId: otherUserId!,
-        timeStamp: currentTimeIsoString,
-        messageContent: text,
-        file: file,
-        images: images,
-      );
+  }) async {
+    final message = await _chatStrategy.sendMessage(
+      userId: userId,
+      timeStamp: currentTimeIsoString,
+      messageContent: text,
+      file: file,
+      images: images,
+    );
+
+    if (message != null) {
+      updateNewMessage(message);
+    } else {
+      updateErrorMessage("temp-$currentTimeIsoString");
+      _setError("send error");
     }
   }
 
