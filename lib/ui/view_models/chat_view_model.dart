@@ -194,6 +194,7 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   void updateNewMessage(Message message) async {
+    // update placeholder message
     final incomingTime = DateTime.parse(message.timestamp).toUtc();
 
     final index = _messages.indexWhere(
@@ -211,7 +212,9 @@ class ChatViewModel extends ChangeNotifier {
         _messages[index].file?.url = message.file!.url;
       }
     } else {
-      _messages.insert(0, message);
+      if (groupId == message.groupId && message.userId == otherUserId) {
+        _messages.insert(0, message);
+      }
     }
 
     debugPrint("${_messages.length}");

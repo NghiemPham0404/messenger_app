@@ -27,6 +27,14 @@ class ConversationRepo {
     return conversations;
   }
 
+  Future<List<Conversation>> refreshUserConversations(int userId) async {
+    final conversations = await _apiClient.conversationApi.getUserConversations(
+      userId,
+    );
+    ConversationServiceLocal().saveUserConversations(conversations);
+    return conversations;
+  }
+
   Future<ListResponse<Message>> requestDirectConversation({
     required int userId,
     required int otherUserId,

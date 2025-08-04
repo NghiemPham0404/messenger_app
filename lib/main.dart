@@ -4,7 +4,7 @@ import 'package:chatting_app/ui/views/contacts/contacts.dart';
 import 'package:chatting_app/ui/views/conversations/conversations.dart';
 import 'package:chatting_app/ui/views/settings/setting.dart';
 import 'package:chatting_app/ui/views/splash/splash.dart';
-import 'package:chatting_app/util/local_notification_service.dart';
+import 'package:chatting_app/util/services/local_notification_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';

@@ -58,7 +58,7 @@ class ConversationsPageState extends State<ConversationsPage> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        viewModel.requestUserConversation();
+        viewModel.refreshUserConversations();
       },
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(), // Important!

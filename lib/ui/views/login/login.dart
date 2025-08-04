@@ -5,6 +5,8 @@ import 'package:chatting_app/ui/view_models/group_view_model.dart';
 import 'package:chatting_app/ui/view_models/login_view_model.dart';
 import 'package:chatting_app/ui/view_models/setting_view_model.dart';
 import 'package:chatting_app/ui/views/signup/signup.dart';
+import 'package:chatting_app/util/services/fcm_token_service/change_notifier/fcm_change_notifier.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -40,6 +42,7 @@ class LoginPageState extends State<LoginPage> {
   void observeChange() {
     loginViewModel.getCurrentUser().listen((currentUser) {
       if (currentUser != null) {
+        updateFCMToken(currentUser.id);
         navigateToHome();
       }
     });
@@ -217,20 +220,6 @@ class LoginPageState extends State<LoginPage> {
       margin: const EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
-        // gradient:
-        //     viewModel.isLoading
-        //         ? LinearGradient(
-        //           colors: [
-        //             Theme.of(context).disabledColor,
-        //             Theme.of(context).disabledColor,
-        //           ],
-        //         )
-        //         : LinearGradient(
-        //           colors: [
-        //             Theme.of(context).primaryColor,
-        //             Theme.of(context).primaryColorDark,
-        //           ],
-        //         ),
         color:
             viewModel.isLoading
                 ? Theme.of(context).disabledColor
@@ -359,5 +348,14 @@ class LoginPageState extends State<LoginPage> {
 
   void handleGoogleSignIn(LoginViewModel viewModel) {
     viewModel.loginByGoogle();
+  }
+
+  void updateFCMToken(int id) async {
+    final fcmChangeNotifier = FCMChangeNotifier();
+    final currentTokenModel = await fcmChangeNotifier.getToken();
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null && currentTokenModel?.token != fcmToken) {
+      fcmChangeNotifier.updateFCMToken(id, fcmToken);
+    }
   }
 }

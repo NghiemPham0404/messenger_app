@@ -5,7 +5,7 @@ import 'package:chatting_app/ui/widgets/chat/chat_header.dart';
 import 'package:chatting_app/ui/widgets/chat/chat_bubble.dart';
 import 'package:chatting_app/ui/widgets/chat/chat_input_area.dart';
 import 'package:chatting_app/ui/widgets/chat/message_actions.dart';
-import 'package:chatting_app/util/web_socket_service.dart';
+import 'package:chatting_app/util/services/web_socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
