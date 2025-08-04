@@ -1,6 +1,7 @@
 import 'package:chatting_app/data/models/conversation.dart';
 import 'package:chatting_app/data/models/message.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ConversationServiceLocal {
   Future<List<Conversation>> getUserConversations(int userId) async {
@@ -18,6 +19,9 @@ class ConversationServiceLocal {
   }
 
   void updateConversation(Message message) async {
+    final dir = await getApplicationDocumentsDirectory();
+    Hive.init(dir.path);
+
     final box = await Hive.openBox("conversations");
 
     final bool isGroup = message.groupId != null;

@@ -5,7 +5,7 @@ import 'package:chatting_app/data/network/api_client.dart';
 import 'package:chatting_app/data/services/auth_service.dart';
 import 'package:chatting_app/data/responses/auth_response.dart';
 import 'package:chatting_app/data/responses/object_response.dart';
-import 'package:chatting_app/util/web_socket_service.dart';
+import 'package:chatting_app/util/services/web_socket_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/account.dart';
 import 'package:firebase_auth/firebase_auth.dart'

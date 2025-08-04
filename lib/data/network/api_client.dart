@@ -9,6 +9,7 @@ import 'package:chatting_app/data/services/group_service.dart';
 import 'package:chatting_app/data/services/media_file_service.dart';
 import 'package:chatting_app/data/services/message_service.dart';
 import 'package:chatting_app/data/services/user_service.dart';
+import 'package:chatting_app/util/services/fcm_token_service/datasources/network/api_source.dart';
 import 'package:dio/dio.dart';
 import 'package:chatting_app/data/services/conversation_service.dart';
 
@@ -49,6 +50,7 @@ class ApiClient {
 
   ContactService? _contactApi;
   ConversationService? _conversationApi;
+  ApiFCMSource? _apiFCMSource;
   GroupService? _groupApi;
   GroupMemberService? _groupMemberService;
   MediaFileService? _mediaFileService;
@@ -65,6 +67,7 @@ class ApiClient {
         },
       ),
     );
+    _apiFCMSource = ApiFCMSource(_dio!);
     _contactApi = ContactService(_dio!);
     _conversationApi = ConversationService(_dio!);
     _groupApi = GroupService(_dio!);
@@ -84,6 +87,15 @@ class ApiClient {
     _mediaFileService = null;
     _messageApi = null;
     _userApi = null;
+  }
+
+  ApiFCMSource get fcmToken {
+    if (_apiFCMSource == null) {
+      throw Exception(
+        'FCM token service not initialized. Call initialize() first.',
+      );
+    }
+    return _apiFCMSource!;
   }
 
   ContactService get contactApi {
