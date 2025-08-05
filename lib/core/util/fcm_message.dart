@@ -1,12 +1,11 @@
 import 'dart:convert';
 
+import 'package:pulse_chat/data/models/message.dart';
+import 'package:pulse_chat/data/services/conversation_service_local.dart';
+import 'package:pulse_chat/core/util/services/local_notification_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:pulse_chat/data/models/message.dart';
-import 'package:pulse_chat/data/services/conversation_service_local.dart';
-
-import '../core/util/services/local_notification_service.dart';
 
 Message handleMessage(RemoteMessage message) {
   final rawJson = message.data['message'];

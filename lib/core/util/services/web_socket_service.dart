@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
-import 'package:pulse_chat/core/network/api_url_provider.dart';
 import 'package:pulse_chat/data/models/message.dart';
+import 'package:pulse_chat/core/network/api_url_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 

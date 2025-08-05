@@ -1,21 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:pulse_chat/core/network/api_client.dart';
-import 'package:pulse_chat/core/network/local_auth_source.dart';
 import 'package:pulse_chat/core/network/responses/object_response.dart';
 import 'package:pulse_chat/core/util/services/fcm_token_service/datasources/local/local_source.dart';
 import 'package:pulse_chat/core/util/services/fcm_token_service/models/fcm_token.dart';
 import 'package:pulse_chat/core/util/services/fcm_token_service/models/fcm_token_create.dart';
+import 'package:flutter/cupertino.dart';
 
 class FCMTokenRepoImpl {
-  final ApiClient _apiClient = ApiClient(LocalAuthSource());
+  final ApiClient apiClient;
 
   late final LocalFCMDatasource localFCMDatasource = LocalFCMDatasource();
 
-  FCMTokenRepoImpl.internal();
-
-  static final FCMTokenRepoImpl _instance = FCMTokenRepoImpl.internal();
-
-  factory FCMTokenRepoImpl() => _instance;
+  FCMTokenRepoImpl({required this.apiClient});
 
   Future<ObjectResponse<FCMTokenModel>> updateToken(
     FcmTokenCreateModel fcmTokenCreate,
@@ -25,7 +20,7 @@ class FCMTokenRepoImpl {
       userId: fcmTokenCreate.userId,
       updatedAt: fcmTokenCreate.updatedAt,
     );
-    final response = await _apiClient.fcmToken.updateFCMToken(
+    final response = await apiClient.fcmToken.updateFCMToken(
       fcmTokenCreateModel,
     );
     if (response.success == true) {
