@@ -1,10 +1,10 @@
-import 'package:chatting_app/data/models/group.dart';
-import 'package:chatting_app/data/models/group_member.dart';
-import 'package:chatting_app/data/repositories/auth_repo.dart';
-import 'package:chatting_app/data/repositories/contact_repo.dart';
-import 'package:chatting_app/data/repositories/group_member_repo.dart';
-import 'package:chatting_app/data/repositories/group_repo.dart';
-import 'package:chatting_app/data/repositories/media_file_repo.dart';
+import 'package:pulse_chat/core/network/local_auth_source.dart';
+import 'package:pulse_chat/data/models/group.dart';
+import 'package:pulse_chat/data/models/group_member.dart';
+import 'package:pulse_chat/data/repositories/contact_repo.dart';
+import 'package:pulse_chat/data/repositories/group_member_repo.dart';
+import 'package:pulse_chat/data/repositories/group_repo.dart';
+import 'package:pulse_chat/data/repositories/media_file_repo.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +13,8 @@ part 'group_view_model.create.dart';
 
 class GroupViewModel extends ChangeNotifier {
   final ContactRepo _contactRepo = ContactRepo();
-  final AuthRepo _authRepo = AuthRepo();
+
+  late final LocalAuthSource localAuthSource;
 
   final _groupRepo = GroupRepo();
   final _groupMemberRepo = GroupMemberRepo();
@@ -62,7 +63,7 @@ class GroupViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       final response = await _contactRepo.fetchGroupRequests(
-        _authRepo.currentUser!.id,
+        localAuthSource.getCachedUser()?.id ?? 0,
         page: page,
       );
       _userGroupPage = response.page ?? 0;
@@ -104,7 +105,7 @@ class GroupViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       final response = await _contactRepo.fetchGroupRequests(
-        _authRepo.currentUser!.id,
+        localAuthSource.getCachedUser()?.id ?? 0,
         status: 0,
         page: page,
       );
@@ -115,13 +116,13 @@ class GroupViewModel extends ChangeNotifier {
         for (final group in _joiningInvites) {
           final groupMemberStatus = await _groupMemberRepo.checkGroupMember(
             group.id,
-            [_authRepo.currentUser!.id],
+            [localAuthSource.getCachedUser()?.id ?? 0],
           );
           memberStatusMap[group.id] =
               groupMemberStatus.results != null
                   ? groupMemberStatus.results![0]
                   : GroupMemberCheck(
-                    userId: _authRepo.currentUser!.id,
+                    userId: localAuthSource.getCachedUser()?.id ?? 0,
                     isHost: false,
                     isSubHost: false,
                     status: 0,

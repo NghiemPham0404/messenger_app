@@ -1,4 +1,4 @@
-import 'package:chatting_app/data/models/group.dart';
+import 'package:pulse_chat/data/models/group.dart';
 import 'package:flutter/material.dart';
 
 class EditGroupDialog extends StatefulWidget {

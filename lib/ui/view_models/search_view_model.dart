@@ -1,8 +1,8 @@
-import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/data/models/user.dart';
-import 'package:chatting_app/data/models/group.dart';
-import 'package:chatting_app/data/repositories/group_repo.dart';
-import 'package:chatting_app/data/repositories/user_repo.dart';
+import 'package:pulse_chat/data/models/contact.dart';
+import 'package:pulse_chat/data/models/user.dart';
+import 'package:pulse_chat/data/models/group.dart';
+import 'package:pulse_chat/data/repositories/group_repo.dart';
+import 'package:pulse_chat/data/repositories/user_repo.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 

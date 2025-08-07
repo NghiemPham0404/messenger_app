@@ -1,7 +1,7 @@
-import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/data/repositories/auth_repo.dart';
-import 'package:chatting_app/data/repositories/contact_repo.dart';
-import 'package:chatting_app/data/responses/list_response.dart';
+import 'package:pulse_chat/core/network/local_auth_source.dart';
+import 'package:pulse_chat/data/models/contact.dart';
+import 'package:pulse_chat/data/repositories/contact_repo.dart';
+import 'package:pulse_chat/core/responses/list_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -13,7 +13,8 @@ class ContactViewModel extends ChangeNotifier {
   }
 
   final ContactRepo _contactRepo = ContactRepo();
-  final AuthRepo _authRepo = AuthRepo();
+
+  late final LocalAuthSource localAuthSource;
 
   // Contact lists
   ListResponse<Contact>? _friendList;
@@ -142,7 +143,8 @@ class ContactViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       final response = await _contactRepo.sendContactRequest(
-        _authRepo.currentUser!.id,
+        // _authRepo.currentUser!.id,
+        localAuthSource.getCachedUser()?.id ?? 0,
         contactUserId,
       );
       debugPrint("[Send Request] ${response.result?.toJson()}");
@@ -163,7 +165,8 @@ class ContactViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       await _contactRepo.blockContactRequest(
-        _authRepo.currentUser!.id,
+        // _authRepo.currentUser!.id,
+        localAuthSource.getCachedUser()?.id ?? 0,
         contactUserId,
       );
     } on DioException catch (e) {

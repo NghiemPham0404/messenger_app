@@ -1,9 +1,7 @@
-import 'package:pulse_chat/core/util/services/local_notification_service.dart';
-import 'package:pulse_chat/main.dart';
+import 'package:pulse_chat/app/my_app.dart';
+import 'package:pulse_chat/features/notification/local_notification_service.dart';
 import 'package:pulse_chat/ui/view_models/contact_view_model.dart';
-import 'package:pulse_chat/ui/view_models/conversations_view_model.dart';
 import 'package:pulse_chat/ui/view_models/group_view_model.dart';
-import 'package:pulse_chat/ui/view_models/setting_view_model.dart';
 import 'package:pulse_chat/features/auth/presentation/splash_page/change_notifier/splash_notifier.dart';
 import 'package:pulse_chat/features/auth/presentation/login_page/view/login_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -118,10 +116,8 @@ class SplashScreenState extends State<SplashScreen>
         builder: (context) {
           return MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (_) => ConversationsViewModel()),
               ChangeNotifierProvider(create: (_) => ContactViewModel()),
               ChangeNotifierProvider(create: (_) => GroupViewModel()),
-              ChangeNotifierProvider(create: (_) => SettingsViewModel()),
             ],
             child: const MyHomePage(),
           );

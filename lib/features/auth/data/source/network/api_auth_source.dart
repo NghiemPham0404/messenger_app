@@ -1,4 +1,4 @@
-import 'package:pulse_chat/core/network/responses/object_response.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';

@@ -1,5 +1,5 @@
 import '../entities/user.dart';
-import 'package:pulse_chat/core/network/responses/object_response.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 import '../repositories/auth_repository.dart';
 
 class ReloginCurrentUser {

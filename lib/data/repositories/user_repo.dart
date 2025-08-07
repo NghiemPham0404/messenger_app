@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:chatting_app/data/models/user.dart';
-import 'package:chatting_app/data/network/api_client.dart';
-import 'package:chatting_app/data/responses/list_response.dart';
+import 'package:pulse_chat/data/models/user.dart';
+import 'package:pulse_chat/data/network/api_client.dart';
+import 'package:pulse_chat/core/responses/list_response.dart';
 
 class UserRepo {
   static final ApiClient _apiClient = ApiClient();

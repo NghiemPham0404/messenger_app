@@ -1,4 +1,4 @@
-import 'package:chatting_app/data/models/user.dart';
+import 'package:pulse_chat/data/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

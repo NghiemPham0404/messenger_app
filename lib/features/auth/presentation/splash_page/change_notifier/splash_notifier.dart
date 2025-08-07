@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:pulse_chat/features/auth/domain/usecases/cached_login_user.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/relogin_current_user.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,8 +11,12 @@ class SplashNotifier extends ChangeNotifier {
   bool get loading => _loading;
 
   ReloginCurrentUser reloginCurrentUser;
+  CachedLoginUser cachedLoginUser;
 
-  SplashNotifier({required this.reloginCurrentUser});
+  SplashNotifier({
+    required this.reloginCurrentUser,
+    required this.cachedLoginUser,
+  });
 
   Future<void> reLogin(VoidCallback onSuccess, VoidCallback onFailure) async {
     try {
@@ -25,10 +30,7 @@ class SplashNotifier extends ChangeNotifier {
       }
       // Try to get current user with existing access token
       final res = await reloginCurrentUser();
-
-      if (res.result == null) {
-        onFailure();
-      }
+      cachedLoginUser(res.result);
       onSuccess();
     } on DioException catch (e) {
       final detail = e.response?.data['detail'] ?? e.message;

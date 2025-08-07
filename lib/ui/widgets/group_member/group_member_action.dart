@@ -1,4 +1,4 @@
-import 'package:chatting_app/data/models/group_member.dart';
+import 'package:pulse_chat/data/models/group_member.dart';
 import 'package:flutter/material.dart';
 
 void showGroupMemberOptions(

@@ -2,9 +2,9 @@
 import 'dart:async';
 
 import 'package:pulse_chat/core/util/page_state.dart';
-import 'package:pulse_chat/data/models/account.dart';
 import 'package:pulse_chat/data/models/user.dart';
 import 'package:pulse_chat/features/auth/domain/entities/signup.dart';
+import 'package:pulse_chat/features/auth/domain/usecases/cached_login_user.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/sign_up_by_email.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpNotifier extends ChangeNotifier {
   final SignUpByEmail signUpByEmail;
+  final CachedLoginUser cachedLoginUser;
 
-  SignUpNotifier(this.signUpByEmail);
+  SignUpNotifier({required this.signUpByEmail, required this.cachedLoginUser});
 
   PageState _pageState = PageState.initial;
   PageState get pageState => _pageState;

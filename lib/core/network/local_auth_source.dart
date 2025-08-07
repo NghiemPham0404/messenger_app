@@ -4,6 +4,7 @@ import '../../features/auth/domain/entities/user.dart';
 
 class LocalAuthSource {
   User? _currentUser;
+  String? _currentToken;
 
   void cachedUser(User user) async {
     _currentUser = user;
@@ -15,6 +16,7 @@ class LocalAuthSource {
 
   // Save token
   void saveToken(String accessToken, String? refreshToken) async {
+    _currentToken = accessToken;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("access_token", accessToken);
     if (refreshToken != null) {
@@ -25,7 +27,8 @@ class LocalAuthSource {
   // Get token
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString("access_token");
+    _currentToken = prefs.getString("access_token");
+    return _currentToken;
   }
 
   Future<String?> getRefreshToken() async {

@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:chatting_app/data/models/file_metadata.dart';
-import 'package:chatting_app/data/models/upload_file_model.dart';
-import 'package:chatting_app/data/network/api_client.dart';
-import 'package:chatting_app/data/responses/object_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
+import 'package:pulse_chat/data/models/upload_file_model.dart';
+import 'package:pulse_chat/data/network/api_client.dart';
+import 'package:pulse_chat/features/media/domain/entity/file_metadata.dart';
 
 class MediaFileRepo {
   final _apiClient = ApiClient();

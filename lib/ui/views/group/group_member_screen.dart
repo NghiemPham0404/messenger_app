@@ -1,8 +1,8 @@
-import 'package:chatting_app/ui/view_models/contact_view_model.dart';
-import 'package:chatting_app/ui/view_models/group_detail_view_model.dart';
-import 'package:chatting_app/ui/view_models/group_member_view_model.dart';
-import 'package:chatting_app/ui/views/group/group_member_adding_screen.dart';
-import 'package:chatting_app/ui/widgets/group_member/group_member_item.dart';
+import 'package:pulse_chat/ui/view_models/contact_view_model.dart';
+import 'package:pulse_chat/ui/view_models/group_detail_view_model.dart';
+import 'package:pulse_chat/ui/view_models/group_member_view_model.dart';
+import 'package:pulse_chat/ui/views/group/group_member_adding_screen.dart';
+import 'package:pulse_chat/ui/widgets/group_member/group_member_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

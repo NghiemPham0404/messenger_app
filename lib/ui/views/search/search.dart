@@ -1,8 +1,8 @@
-import 'package:chatting_app/ui/view_models/contact_view_model.dart';
-import 'package:chatting_app/ui/view_models/search_view_model.dart';
-import 'package:chatting_app/ui/widgets/search/search_group_item.dart';
-import 'package:chatting_app/ui/widgets/search/search_user_item.dart';
-import 'package:chatting_app/ui/widgets/search_bar.dart';
+import 'package:pulse_chat/ui/view_models/contact_view_model.dart';
+import 'package:pulse_chat/ui/view_models/search_view_model.dart';
+import 'package:pulse_chat/ui/widgets/search/search_group_item.dart';
+import 'package:pulse_chat/ui/widgets/search/search_user_item.dart';
+import 'package:pulse_chat/ui/widgets/search_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

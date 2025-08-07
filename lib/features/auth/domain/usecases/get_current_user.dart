@@ -1,4 +1,4 @@
-import 'package:pulse_chat/core/network/responses/object_response.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 import 'package:pulse_chat/features/auth/domain/repositories/auth_repository.dart';
 
 import '../entities/user.dart';

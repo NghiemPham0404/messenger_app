@@ -1,9 +1,9 @@
-import 'package:chatting_app/data/models/group.dart';
-import 'package:chatting_app/data/models/group_member.dart';
-import 'package:chatting_app/data/repositories/auth_repo.dart';
-import 'package:chatting_app/data/repositories/group_member_repo.dart';
-import 'package:chatting_app/data/repositories/group_repo.dart';
-import 'package:chatting_app/data/repositories/media_file_repo.dart';
+import 'package:pulse_chat/core/network/local_auth_source.dart';
+import 'package:pulse_chat/data/models/group.dart';
+import 'package:pulse_chat/data/models/group_member.dart';
+import 'package:pulse_chat/data/repositories/group_member_repo.dart';
+import 'package:pulse_chat/data/repositories/group_repo.dart';
+import 'package:pulse_chat/data/repositories/media_file_repo.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +13,7 @@ class GroupDetailViewModel extends ChangeNotifier {
   final _fileRepo = MediaFileRepo();
 
   final _groupMemberRepo = GroupMemberRepo();
-  final _authRepo = AuthRepo();
+  late final LocalAuthSource localAuthSource;
 
   late Group group;
 
@@ -49,7 +49,7 @@ class GroupDetailViewModel extends ChangeNotifier {
       /// know if current login user is admin or subadmin or not
       final memberStatusResponse = await getGroupMemberStatus(
         id,
-        _authRepo.currentUser!.id,
+        localAuthSource.getCachedUser()?.id ?? 0,
       );
       groupMemberStatus = memberStatusResponse;
     } on DioException catch (e) {

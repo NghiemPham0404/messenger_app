@@ -1,6 +1,6 @@
-import 'package:chatting_app/data/models/group_member.dart';
-import 'package:chatting_app/ui/widgets/avatar.dart';
-import 'package:chatting_app/ui/widgets/group_member/group_member_action.dart';
+import 'package:pulse_chat/data/models/group_member.dart';
+import 'package:pulse_chat/ui/widgets/avatar.dart';
+import 'package:pulse_chat/ui/widgets/group_member/group_member_action.dart';
 import 'package:flutter/material.dart';
 
 abstract class GroupMemberBaseItem extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:pulse_chat/core/network/responses/object_response.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 import 'package:pulse_chat/features/auth/data/models/login_google_model.dart';
 import 'package:pulse_chat/features/auth/data/models/login_model.dart';
 import 'package:pulse_chat/features/auth/data/models/refresh_token_model.dart';
@@ -29,10 +29,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<ObjectResponse<User>> getCurrentUser() async {
     final token = await _localAuthSource.getToken();
     final response = await _apiAuthSource.getCurrentUser("Bearer $token");
-    if (response.result != null) {
-      _currentUserController.add(response.result);
-      _localAuthSource.cachedUser(response.result!);
-    }
+    _currentUserController.add(response.result);
+    _localAuthSource.cachedUser(response.result);
     return response;
   }
 
@@ -97,10 +95,8 @@ class AuthRepositoryImpl implements AuthRepository {
       name: signUpEntity.name,
     );
     final response = await _apiAuthSource.signUp(signUpModel);
-    if (response.result != null) {
-      _currentUserController.add(response.result);
-      _localAuthSource.cachedUser(response.result!);
-    }
+    _currentUserController.add(response.result);
+    _localAuthSource.cachedUser(response.result);
     return response;
   }
 
@@ -118,5 +114,17 @@ class AuthRepositoryImpl implements AuthRepository {
         "Bearer ${refreshRes.accessToken}",
       );
     }
+  }
+
+  @override
+  Future<void> cachedUser(User user) async {
+    _localAuthSource.cachedUser(user);
+  }
+
+  @override
+  Future<void> logout() async {
+    _localAuthSource.logOut();
+    _firebaseAuthSource.signOutGoogle();
+    _currentUserController.add(null);
   }
 }

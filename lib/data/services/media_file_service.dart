@@ -1,5 +1,5 @@
-import 'package:chatting_app/data/models/upload_file_model.dart';
-import 'package:chatting_app/data/responses/object_response.dart';
+import 'package:pulse_chat/data/models/upload_file_model.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 

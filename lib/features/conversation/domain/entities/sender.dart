@@ -1,7 +1,7 @@
 class Sender {
-  late int id;
-  late String name;
-  late String avatar;
+  int id;
+  String name;
+  String avatar;
 
-  Sender(this.id, this.name, this.avatar);
+  Sender({required this.id, required this.name, required this.avatar});
 }

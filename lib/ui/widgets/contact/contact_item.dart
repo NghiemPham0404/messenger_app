@@ -1,5 +1,5 @@
-import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/ui/widgets/avatar.dart';
+import 'package:pulse_chat/data/models/contact.dart';
+import 'package:pulse_chat/ui/widgets/avatar.dart';
 import 'package:flutter/material.dart';
 
 class ContactItem extends StatelessWidget {

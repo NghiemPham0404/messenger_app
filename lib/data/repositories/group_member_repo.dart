@@ -1,8 +1,8 @@
-import 'package:chatting_app/data/models/group_member.dart';
-import 'package:chatting_app/data/network/api_client.dart';
-import 'package:chatting_app/data/responses/list_response.dart';
-import 'package:chatting_app/data/responses/message_response.dart';
-import 'package:chatting_app/data/responses/object_response.dart';
+import 'package:pulse_chat/data/models/group_member.dart';
+import 'package:pulse_chat/data/network/api_client.dart';
+import 'package:pulse_chat/core/responses/list_response.dart';
+import 'package:pulse_chat/core/responses/message_response.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 
 class GroupMemberRepo {
   GroupMemberRepo.internal();

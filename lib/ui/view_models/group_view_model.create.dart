@@ -27,7 +27,7 @@ extension GroupMemberInitViewModel on GroupViewModel {
   Future<String?> uploadAvatarUrl() async {
     if (_choosenAvatar == null) return null;
     final imageUploaded = await _fileRepo.postImageToServer(_choosenAvatar!);
-    return imageUploaded.result!.imageUrl;
+    return imageUploaded.result.imageUrl;
   }
 
   Future<Group?> createNewGroup(String name) async {
@@ -35,9 +35,9 @@ extension GroupMemberInitViewModel on GroupViewModel {
       String? avatarUrl = await uploadAvatarUrl();
       final groupCreate = GroupCreate(subject: name, avatar: avatarUrl);
       final group = await _groupRepo.createGroup(groupCreate);
-      addHostToGroup(group.result!.id, _authRepo.currentUser!.id);
-      initGroupMember(group.result!.id);
-      return group.result!;
+      addHostToGroup(group.result.id, localAuthSource.getCachedUser()!.id);
+      initGroupMember(group.result.id);
+      return group.result;
     } on DioException catch (e) {
       debugPrint("[Group create] : ${e.response?.data["detail"] ?? "$e"}");
       return null;
@@ -77,7 +77,7 @@ extension GroupMemberInitViewModel on GroupViewModel {
         groupId,
         groupMemberCreate,
       );
-      return response.result!;
+      return response.result;
     } on DioException catch (e) {
       debugPrint(e.response?.data["detail"]);
       return null;

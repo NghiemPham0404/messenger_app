@@ -1,40 +1,13 @@
 // ignore_for_file: unused_import
 
-import 'package:chatting_app/data/models/group.dart';
-import 'package:chatting_app/data/network/api_url_provider.dart';
-import 'package:chatting_app/data/services/auth_service.dart';
-import 'package:chatting_app/data/services/contact_service.dart';
-import 'package:chatting_app/data/services/group_member_service.dart';
-import 'package:chatting_app/data/services/group_service.dart';
-import 'package:chatting_app/data/services/media_file_service.dart';
-import 'package:chatting_app/data/services/message_service.dart';
-import 'package:chatting_app/data/services/user_service.dart';
-import 'package:chatting_app/util/services/fcm_token_service/datasources/network/api_source.dart';
+import 'package:pulse_chat/data/models/group.dart';
+import 'package:pulse_chat/data/network/api_url_provider.dart';
+import 'package:pulse_chat/data/services/contact_service.dart';
+import 'package:pulse_chat/data/services/group_member_service.dart';
+import 'package:pulse_chat/data/services/group_service.dart';
+import 'package:pulse_chat/data/services/media_file_service.dart';
+import 'package:pulse_chat/data/services/user_service.dart';
 import 'package:dio/dio.dart';
-import 'package:chatting_app/data/services/conversation_service.dart';
-
-class AuthApiClient {
-  static final ApiUrlProvider _apiEndpointProvider = ApiUrlProvider();
-  late final Dio dio;
-  AuthService? _authApi;
-
-  AuthApiClient.internal() {
-    dio = Dio(
-      BaseOptions(
-        baseUrl: _apiEndpointProvider.baseUrl, // hoặc dotenv
-        headers: {'Content-Type': 'application/json'},
-      ),
-    );
-  }
-
-  static final AuthApiClient _instance = AuthApiClient.internal();
-
-  factory AuthApiClient() => _instance;
-
-  AuthService getAuthApi() {
-    return _authApi ?? AuthService(dio);
-  }
-}
 
 class ApiClient {
   ApiClient.internal();
@@ -49,12 +22,9 @@ class ApiClient {
   Dio? _dio;
 
   ContactService? _contactApi;
-  ConversationService? _conversationApi;
-  ApiFCMSource? _apiFCMSource;
   GroupService? _groupApi;
   GroupMemberService? _groupMemberService;
   MediaFileService? _mediaFileService;
-  MessageService? _messageApi;
   UserService? _userApi;
 
   void initialize(String accessToken) {
@@ -67,35 +37,21 @@ class ApiClient {
         },
       ),
     );
-    _apiFCMSource = ApiFCMSource(_dio!);
     _contactApi = ContactService(_dio!);
-    _conversationApi = ConversationService(_dio!);
     _groupApi = GroupService(_dio!);
     _groupMemberService = GroupMemberService(_dio!);
-    _messageApi = MessageService(_dio!);
-    _userApi = UserService(_dio!);
 
+    _userApi = UserService(_dio!);
     _initMediaFileService(accessToken);
   }
 
   void destroy() {
     _dio = null;
     _contactApi = null;
-    _conversationApi = null;
     _groupApi = null;
     _groupMemberService = null;
     _mediaFileService = null;
-    _messageApi = null;
     _userApi = null;
-  }
-
-  ApiFCMSource get fcmToken {
-    if (_apiFCMSource == null) {
-      throw Exception(
-        'FCM token service not initialized. Call initialize() first.',
-      );
-    }
-    return _apiFCMSource!;
   }
 
   ContactService get contactApi {
@@ -105,15 +61,6 @@ class ApiClient {
       );
     }
     return _contactApi!;
-  }
-
-  ConversationService get conversationApi {
-    if (_conversationApi == null) {
-      throw Exception(
-        'conversation api not initialized. Call initialize() first.',
-      );
-    }
-    return _conversationApi!;
   }
 
   GroupService get groupApi {
@@ -137,15 +84,6 @@ class ApiClient {
       );
     }
     return _mediaFileService!;
-  }
-
-  MessageService get messageApi {
-    if (_messageApi == null) {
-      throw Exception(
-        'message api service not initialized. Call initialize() first.',
-      );
-    }
-    return _messageApi!;
   }
 
   UserService get userApi {

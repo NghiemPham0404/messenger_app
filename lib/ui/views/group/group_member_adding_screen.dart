@@ -1,5 +1,5 @@
-import 'package:chatting_app/ui/view_models/group_member_view_model.dart';
-import 'package:chatting_app/ui/widgets/avatar.dart';
+import 'package:pulse_chat/ui/view_models/group_member_view_model.dart';
+import 'package:pulse_chat/ui/widgets/avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

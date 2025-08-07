@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/data/models/group.dart';
-import 'package:chatting_app/data/network/api_client.dart';
-import 'package:chatting_app/data/responses/list_response.dart';
-import 'package:chatting_app/data/responses/message_response.dart';
-import 'package:chatting_app/data/responses/object_response.dart';
+import 'package:pulse_chat/data/models/contact.dart';
+import 'package:pulse_chat/data/models/group.dart';
+import 'package:pulse_chat/data/network/api_client.dart';
+import 'package:pulse_chat/core/responses/list_response.dart';
+import 'package:pulse_chat/core/responses/message_response.dart';
+import 'package:pulse_chat/core/responses/object_response.dart';
 import 'package:flutter/cupertino.dart';
 
 enum ContactType { accept, pending, request }

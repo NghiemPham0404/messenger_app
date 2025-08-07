@@ -1,9 +1,9 @@
-import 'package:chatting_app/data/models/contact.dart';
-import 'package:chatting_app/data/models/group_member.dart';
-import 'package:chatting_app/data/repositories/auth_repo.dart';
-import 'package:chatting_app/data/repositories/contact_repo.dart';
-import 'package:chatting_app/data/repositories/group_member_repo.dart';
-import 'package:chatting_app/data/responses/list_response.dart';
+import 'package:pulse_chat/core/network/local_auth_source.dart';
+import 'package:pulse_chat/data/models/contact.dart';
+import 'package:pulse_chat/data/models/group_member.dart';
+import 'package:pulse_chat/data/repositories/contact_repo.dart';
+import 'package:pulse_chat/data/repositories/group_member_repo.dart';
+import 'package:pulse_chat/core/responses/list_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -14,9 +14,9 @@ part 'group_member_view_model.waiting_request.dart';
 class GroupMemberViewModel extends ChangeNotifier {
   final _groupMemberRepo = GroupMemberRepo();
   final _contactRepo = ContactRepo();
-  final _authRepo = AuthRepo();
+  late final LocalAuthSource localAuthSource;
 
-  int get userId => _authRepo.currentUser!.id;
+  int get userId => localAuthSource.getCachedUser()?.id ?? 0;
 
   GroupMemberViewModel(int groupId) {
     getGroupMembers(groupId, 1);

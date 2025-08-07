@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:pulse_chat/features/auth/domain/entities/login.dart';
+import 'package:pulse_chat/features/auth/domain/usecases/cached_login_user.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/get_current_user.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/get_signin_google.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/login_by_email.dart';
@@ -13,6 +14,7 @@ class LoginNotifier extends ChangeNotifier {
   final LoginByEmail _loginByEmail;
   final LoginByGoogle _loginByGoogle;
   final GetCurrentUser _getCurrentUser;
+  final CachedLoginUser _cachedLoginUser;
   final GetSigninGoogle _getSigninGoogle;
 
   PageState _pageState = PageState.initial;
@@ -26,10 +28,12 @@ class LoginNotifier extends ChangeNotifier {
     required LoginByEmail loginByEmail,
     required LoginByGoogle loginByGoogle,
     required GetCurrentUser getCurrentUser,
+    required CachedLoginUser cachedLoginUser,
     required GetSigninGoogle getSigninGoogle,
   }) : _loginByEmail = loginByEmail,
        _loginByGoogle = loginByGoogle,
        _getCurrentUser = getCurrentUser,
+       _cachedLoginUser = cachedLoginUser,
        _getSigninGoogle = getSigninGoogle;
 
   Future<void> login(String email, String password) async {
@@ -42,6 +46,7 @@ class LoginNotifier extends ChangeNotifier {
       if (data.accessToken.isNotEmpty) {
         final currentUser = await _getCurrentUser();
         if (currentUser.success) {
+          _cachedLoginUser(currentUser.result);
           _userOutStream.add(currentUser.result);
           _pageState = PageState.success;
         }
@@ -73,14 +78,13 @@ class LoginNotifier extends ChangeNotifier {
     notifyListeners();
     try {
       final signedGoogleAccount = await _getSigninGoogle();
-      final data = await _loginByGoogle(signedGoogleAccount);
+      await _loginByGoogle(signedGoogleAccount);
 
-      if (data.accessToken.isNotEmpty) {
-        final currentUser = await _getCurrentUser();
-        if (currentUser.success) {
-          _userOutStream.add(currentUser.result);
-          _pageState = PageState.success;
-        }
+      final currentUser = await _getCurrentUser();
+      if (currentUser.success) {
+        _cachedLoginUser(currentUser.result);
+        _userOutStream.add(currentUser.result);
+        _pageState = PageState.success;
       }
     } on DioException catch (e) {
       final errorDetail = e.response?.data['detail'] ?? e.message;

@@ -1,6 +1,6 @@
-import 'package:chatting_app/data/models/user.dart';
-import 'package:chatting_app/ui/widgets/avatar.dart';
-import 'package:chatting_app/ui/widgets/contact_info_card.dart';
+import 'package:pulse_chat/data/models/user.dart';
+import 'package:pulse_chat/ui/widgets/avatar.dart';
+import 'package:pulse_chat/ui/widgets/contact_info_card.dart';
 import 'package:flutter/material.dart';
 
 class SearchUserItem extends StatelessWidget {
