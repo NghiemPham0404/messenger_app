@@ -2,18 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pulse_chat/core/responses/object_response.dart';
 import 'package:pulse_chat/features/media/data/datasource/local/media_file_local.dart';
-import 'package:pulse_chat/features/media/data/datasource/network/media_file_api.dart';
+import 'package:pulse_chat/features/media/data/datasource/network/media_file_service.dart';
 import 'package:pulse_chat/features/media/domain/entity/file_metadata.dart';
 import 'package:pulse_chat/features/media/domain/entity/file_upload.dart';
 import 'package:pulse_chat/features/media/domain/entity/image_upload.dart';
 import 'package:pulse_chat/features/media/domain/repository/media_file_repo.dart';
 
 class MediaFileRepoImpl implements MediaFileRepo {
-  final MediaFileApiSource _mediaFileApiSource;
+  final MediaFileService _mediaFileApiSource;
   final MediaFileLocalSource _mediaFileLocalSource;
 
   MediaFileRepoImpl({
-    required MediaFileApiSource mediaFileApiSource,
+    required MediaFileService mediaFileApiSource,
     required MediaFileLocalSource fileLocalSource,
   }) : _mediaFileApiSource = mediaFileApiSource,
        _mediaFileLocalSource = fileLocalSource;

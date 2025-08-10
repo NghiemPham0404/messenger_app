@@ -1,11 +1,15 @@
 import 'package:pulse_chat/app/my_app.dart';
 import 'package:pulse_chat/core/network/api_client.dart';
 import 'package:pulse_chat/core/network/local_auth_source.dart';
+import 'package:pulse_chat/features/contact/di/contact_providers.dart';
 import 'package:pulse_chat/features/conversation/di/socket_provider.dart';
 import 'package:pulse_chat/features/fcm/di/fcm_token_provider.dart';
+import 'package:pulse_chat/features/group/di/group_member_providers.dart';
+import 'package:pulse_chat/features/group/di/group_providers.dart';
 import 'package:pulse_chat/features/media/di/media_file_providers.dart';
 import 'package:pulse_chat/features/auth/di/auth_providers.dart';
 import 'package:pulse_chat/features/conversation/di/conversation_provider.dart';
+import 'package:pulse_chat/features/search/di/search_provider.dart';
 import 'package:pulse_chat/features/setting/di/setting_providers.dart';
 import 'package:pulse_chat/features/theme/di/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,6 +20,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 import 'package:pulse_chat/core/firebase/fcm_message.dart';
+import 'package:pulse_chat/features/user/di/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +50,11 @@ void main() async {
         ...conversationsProviders,
         ...mediaFileProviders,
         ...settingProviders,
+        ...contactProviders,
+        ...groupMemberProviders,
+        ...groupProviders,
+        ...userProviders,
+        ...searchProviders,
       ],
       child: MyApp(),
     ),

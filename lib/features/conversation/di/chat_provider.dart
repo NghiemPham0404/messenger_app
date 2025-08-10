@@ -102,8 +102,10 @@ List<SingleChildWidget> getChatProviders(
   debugPrint("other id : ${otherUserId ?? groupId ?? 0}");
 
   return [
-    if (groupId != null) ...groupChatProviders,
-    if (conversation.receiverId != null) ...directChatProviders,
+    if (groupId != null)
+      ...groupChatProviders
+    else if (conversation.receiverId != null)
+      ...directChatProviders,
     ChangeNotifierProvider(
       create: (context) => ChatHeaderNotifier(conversation: conversation),
     ),

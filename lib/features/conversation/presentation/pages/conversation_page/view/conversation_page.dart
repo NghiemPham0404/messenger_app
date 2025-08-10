@@ -2,7 +2,7 @@ import 'package:pulse_chat/features/conversation/di/chat_provider.dart';
 import 'package:pulse_chat/features/conversation/presentation/pages/conversation_page/change_notifier/conversation_notifier.dart';
 import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/view/chat_page.dart';
 import 'package:pulse_chat/features/conversation/presentation/pages/conversation_page/change_notifier/conversation_socket_notifier.dart';
-import 'package:pulse_chat/ui/widgets/search_bar.dart';
+import 'package:pulse_chat/features/search/presentation/components/search_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

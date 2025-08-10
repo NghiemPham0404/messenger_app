@@ -1,10 +1,11 @@
 import 'package:pulse_chat/features/auth/di/auth_providers.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/logout_user.dart';
+import 'package:pulse_chat/features/fcm/domain/usecase/delete_fcm_token.dart';
 import 'package:pulse_chat/features/setting/presentation/change_notifier/setting_view_model.dart';
 import 'package:pulse_chat/features/auth/presentation/login_page/view/login_page.dart';
 import 'package:pulse_chat/features/theme/presentation/view/theme.dart';
-import 'package:pulse_chat/ui/widgets/avatar.dart';
-import 'package:pulse_chat/ui/widgets/search_bar.dart';
+import 'package:pulse_chat/shared/avatar.dart';
+import 'package:pulse_chat/features/search/presentation/components/search_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -181,7 +182,9 @@ class SettingsPage extends StatelessWidget {
 
   void logOut(BuildContext context) {
     final LogoutUser logoutUser = context.read<LogoutUser>();
-    logoutUser.call();
+    final deleteFcmToken = context.read<DeleteFcmToken>();
+    deleteFcmToken();
+    logoutUser();
     Navigator.of(context, rootNavigator: true).pushReplacement(
       CupertinoPageRoute(
         builder:

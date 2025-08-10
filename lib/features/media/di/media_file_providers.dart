@@ -1,7 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:pulse_chat/features/media/data/datasource/local/media_file_local.dart';
-import 'package:pulse_chat/features/media/data/datasource/network/media_file_api.dart';
+import 'package:pulse_chat/features/media/data/datasource/network/media_file_service.dart';
 import 'package:pulse_chat/features/media/data/media_file_repo_impl.dart';
 import 'package:pulse_chat/features/media/domain/repository/media_file_repo.dart';
 import 'package:pulse_chat/features/media/domain/usecase/check_existence_file.dart';
@@ -13,7 +13,7 @@ import '../../../core/network/api_client.dart';
 
 final List<SingleChildWidget> mediaFileProviders = [
   //---API SERVICE & SOURCE -----------------------------------------------------------
-  Provider<MediaFileApiSource>(
+  Provider<MediaFileService>(
     create: (context) => context.read<ApiClient>().mediaFileApi,
   ),
 
@@ -24,7 +24,7 @@ final List<SingleChildWidget> mediaFileProviders = [
     create:
         (context) => MediaFileRepoImpl(
           fileLocalSource: context.read<MediaFileLocalSource>(),
-          mediaFileApiSource: context.read<MediaFileApiSource>(),
+          mediaFileApiSource: context.read<MediaFileService>(),
         ),
   ),
 

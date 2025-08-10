@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:provider/provider.dart';
 import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/change_notifier/chat_download.dart';
-import 'package:pulse_chat/ui/widgets/avatar.dart';
+import 'package:pulse_chat/shared/avatar.dart';
 import 'package:pulse_chat/features/conversation/presentation/components/file_item.dart';
-import 'package:pulse_chat/ui/widgets/image_viewer.dart';
+import 'package:pulse_chat/shared/image_viewer.dart';
 import 'package:pulse_chat/core/util/format_readable_date.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

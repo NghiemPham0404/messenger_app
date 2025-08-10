@@ -7,7 +7,7 @@ import 'package:pulse_chat/features/auth/data/models/refresh_token_model.dart';
 import 'package:pulse_chat/features/auth/data/models/signup_model.dart';
 import 'package:pulse_chat/features/auth/data/source/firebase/firebase_auth_source.dart';
 import 'package:pulse_chat/core/network/local_auth_source.dart';
-import 'package:pulse_chat/features/auth/data/source/network/api_auth_source.dart';
+import 'package:pulse_chat/features/auth/data/source/network/auth_service.dart';
 import 'package:pulse_chat/features/auth/domain/entities/auth_res.dart';
 import 'package:pulse_chat/features/auth/domain/entities/login.dart';
 import 'package:pulse_chat/features/auth/domain/entities/login_google.dart';
@@ -17,7 +17,7 @@ import 'package:pulse_chat/features/auth/domain/entities/user.dart';
 import 'package:pulse_chat/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final ApiAuthSource _apiAuthSource;
+  final AuthService _apiAuthSource;
   final LocalAuthSource _localAuthSource;
   final _firebaseAuthSource = FirebaseAuthSource();
 

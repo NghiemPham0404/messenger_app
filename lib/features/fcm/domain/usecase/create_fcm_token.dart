@@ -7,7 +7,7 @@ class CreateFcmToken {
 
   CreateFcmToken(this._fcmTokenRepository);
 
-  Future<ObjectResponse<FcmToken>> call() {
-    return _fcmTokenRepository.createFcmToken();
+  Future<ObjectResponse<FcmToken>> call(String token) {
+    return _fcmTokenRepository.createFcmToken(token);
   }
 }

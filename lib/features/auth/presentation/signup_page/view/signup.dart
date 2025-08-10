@@ -1,8 +1,6 @@
 import 'package:pulse_chat/app/my_app.dart';
 import 'package:pulse_chat/core/util/page_state.dart';
 import 'package:pulse_chat/features/auth/presentation/signup_page/change_notifier/signup_notifier.dart';
-import 'package:pulse_chat/ui/view_models/contact_view_model.dart';
-import 'package:pulse_chat/ui/view_models/group_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -208,13 +206,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       context,
       CupertinoPageRoute(
         builder: (context) {
-          return MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (_) => ContactViewModel()),
-              ChangeNotifierProvider(create: (_) => GroupViewModel()),
-            ],
-            child: const MyHomePage(),
-          );
+          return const MyHomePage();
         },
       ),
     );

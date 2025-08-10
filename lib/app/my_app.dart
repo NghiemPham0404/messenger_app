@@ -10,7 +10,7 @@ import 'package:pulse_chat/features/fcm/domain/usecase/create_fcm_token.dart';
 import 'package:pulse_chat/features/fcm/domain/usecase/get_fcm_token.dart';
 import 'package:pulse_chat/features/setting/presentation/view/setting_page.dart';
 import 'package:pulse_chat/features/theme/presentation/notifier/theme_notifier.dart';
-import 'package:pulse_chat/ui/views/contacts/contacts.dart';
+import 'package:pulse_chat/features/contact/presentation/contacts_page/view/contacts_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -84,9 +84,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _updateFcmToken() async {
     final getFcmToken = Provider.of<GetFcmToken>(context, listen: false);
     final createFcmToken = Provider.of<CreateFcmToken>(context, listen: false);
-    final fcmToken = await getFcmToken();
-    if (fcmToken == null) {
-      createFcmToken();
+
+    final storedToken = await getFcmToken();
+    final firebaseToken = await FirebaseMessaging.instance.getToken();
+
+    if (firebaseToken != null && firebaseToken != storedToken) {
+      await createFcmToken(firebaseToken);
     }
   }
 

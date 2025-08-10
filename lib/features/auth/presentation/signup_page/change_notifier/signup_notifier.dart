@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:pulse_chat/core/util/page_state.dart';
-import 'package:pulse_chat/data/models/user.dart';
 import 'package:pulse_chat/features/auth/domain/entities/signup.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/cached_login_user.dart';
 import 'package:pulse_chat/features/auth/domain/usecases/sign_up_by_email.dart';
