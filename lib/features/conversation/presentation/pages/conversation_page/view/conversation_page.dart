@@ -76,7 +76,7 @@ class ConversationsPageState extends State<ConversationsPage> {
         viewModel.refreshUserConversations();
       },
       child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(), // Important!
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: conversations.length + (viewModel.isLoading ? 1 : 0),
         itemBuilder: (context, index) {
           if (viewModel.isLoading && index == conversations.length) {
@@ -107,7 +107,9 @@ class ConversationsPageState extends State<ConversationsPage> {
       CupertinoPageRoute(
         builder:
             (context) => MultiProvider(
-              providers: getChatProviders(currentUserId, conversation),
+              providers: [
+                ...getChatProviders(currentUserId, conversation: conversation),
+              ],
               child: const ChatPage(),
             ),
       ),

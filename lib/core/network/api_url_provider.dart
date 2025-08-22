@@ -14,7 +14,7 @@ class ApiUrlProvider {
     _host = dotenv.env['HOST'] ?? '192.168.1.1';
     _port = dotenv.env['PORT'] ?? '8000';
     _secure = dotenv.env['SECURE'] ?? 'http';
-    _apiUrl = "$_secure://$_host:$_port";
+    _apiUrl = "$_secure://$_host";
   }
 
   static final ApiUrlProvider _instance = ApiUrlProvider._internal();
@@ -23,5 +23,5 @@ class ApiUrlProvider {
 
   String get baseUrl => "$_apiUrl/api/v$_apiVersion";
 
-  String get baseWebsocket => "ws://$_host:$_port/ws";
+  String get baseWebsocket => "wss://$_host/ws";
 }

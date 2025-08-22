@@ -1,5 +1,4 @@
 import 'package:pulse_chat/core/util/page_state.dart';
-import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/change_notifier/chat_header_notifier.dart';
 import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/change_notifier/chat_history_notifier.dart';
 import 'package:pulse_chat/features/conversation/presentation/components/chat_header.dart';
 import 'package:pulse_chat/features/conversation/presentation/components/chat_bubble.dart';
@@ -169,11 +168,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildChatHeader() {
-    return Consumer<ChatHeaderNotifier>(
-      builder:
-          (context, chatHeaderNotifier, child) =>
-              ChatHeader(conversation: chatHeaderNotifier.conversation),
-    );
+    return ChatHeader();
   }
 
   void _editMessage(

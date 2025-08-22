@@ -111,6 +111,7 @@ List<SingleChildWidget> groupProviders = [
           localAuthSource: context.read<LocalAuthSource>(),
           getUserJoinedGroups: context.read<GetUserJoinedGroups>(),
           getUserInviteGroup: context.read<GetUserInviteGroup>(),
+          checkMemberStatus: context.read<CheckMemberStatus>(),
           acceptMember: context.read<AcceptMember>(),
         ),
   ),

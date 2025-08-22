@@ -148,7 +148,13 @@ class ChatHistoryNotifier extends ChangeNotifier {
       }
     } else {
       if (_otherId == message.groupId || message.userId == _otherId) {
-        _messages.insert(0, message);
+        final updateIndex = _messages.indexWhere((msg) => msg.id == message.id);
+
+        if (updateIndex != -1) {
+          _messages[updateIndex] = message;
+        } else {
+          _messages.insert(0, message);
+        }
       }
     }
 

@@ -20,7 +20,7 @@ class GroupMembersPageState extends State<GroupMembersPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  late int yourId;
+  late int yourId = -1;
 
   @override
   void initState() {
@@ -32,8 +32,6 @@ class GroupMembersPageState extends State<GroupMembersPage>
       final currentUser = localAuthSource.getCachedUser();
       if (currentUser != null) {
         yourId = currentUser.id;
-      } else {
-        yourId = -1;
       }
       final GroupDetailNotifier groupDetailVM =
           context.read<GroupDetailNotifier>();

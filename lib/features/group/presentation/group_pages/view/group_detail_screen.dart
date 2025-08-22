@@ -1,3 +1,7 @@
+import 'package:pulse_chat/core/network/local_auth_source.dart';
+import 'package:pulse_chat/features/conversation/di/chat_provider.dart';
+import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/change_notifier/chat_header_notifier.dart';
+import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/view/chat_page.dart';
 import 'package:pulse_chat/features/group/presentation/group_pages/notifier/group_detail_notifier.dart';
 import 'package:pulse_chat/features/group/presentation/group_member_pages/view/group_members_page.dart';
 import 'package:pulse_chat/features/group/presentation/components/group_detail_edit_dialog.dart';
@@ -190,7 +194,7 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
         ListTile(
           leading: Icon(Icons.chat_bubble_outline_outlined),
           title: Text("join conversation"),
-          onTap: () => _navigateToChatView(groupDetailVM.group.id),
+          onTap: () => _navigateToChatView(groupDetailVM),
         ),
         ListTile(
           leading: Icon(
@@ -261,5 +265,29 @@ class GroupDetailScreenState extends State<GroupDetailScreen> {
     ).push(CupertinoPageRoute(builder: (context) => GroupMembersPage()));
   }
 
-  void _navigateToChatView(int groupId) {}
+  void _navigateToChatView(GroupDetailNotifier groupDetailVM) {
+    final localAuthSource = context.read<LocalAuthSource>();
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoPageRoute(
+        builder:
+            (context) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider(
+                  create:
+                      (context) => ChatHeaderNotifier(
+                        otherId: groupDetailVM.group.id,
+                        dislayName: groupDetailVM.group.subject,
+                        displayAvatar: groupDetailVM.group.avatar,
+                      ),
+                ),
+                ...getChatGroupProviders(
+                  localAuthSource.getCachedUser()!.id,
+                  groupDetailVM.group.id,
+                ),
+              ],
+              child: const ChatPage(),
+            ),
+      ),
+    );
+  }
 }

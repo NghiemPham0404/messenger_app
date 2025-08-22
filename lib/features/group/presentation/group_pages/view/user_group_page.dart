@@ -37,9 +37,14 @@ class UserGroupsPageState extends State<UserGroupsPage> {
       body:
           viewModel.isLoading
               ? Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
+              : RefreshIndicator(
+                onRefresh: () async {
+                  // Reload both sections
+                  viewModel.getUserGroups(1);
+                  viewModel.getUserJoiningGroupInvites(1);
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     if (viewModel.joiningInvites.isNotEmpty)
                       _getJoinInvites(viewModel),

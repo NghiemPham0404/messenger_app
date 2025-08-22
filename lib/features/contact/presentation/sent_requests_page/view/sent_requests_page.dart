@@ -45,13 +45,18 @@ class SentRequestsPageState extends State<SentRequestsPage> {
     final sentRequestList = sentRequestsNotifier.sentRequestList?.results ?? [];
     return CupertinoPageScaffold(
       child: Scaffold(
-        body: ListView.builder(
-          itemCount: sentRequestList.length,
-          itemBuilder:
-              (context, index) => SentRequestItem(
-                contact: sentRequestList[index],
-                cancel: (id) => sentRequestsNotifier.cancelRequest(id),
-              ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            sentRequestsNotifier.getSentRequests();
+          },
+          child: ListView.builder(
+            itemCount: sentRequestList.length,
+            itemBuilder:
+                (context, index) => SentRequestItem(
+                  contact: sentRequestList[index],
+                  cancel: (id) => sentRequestsNotifier.cancelRequest(id),
+                ),
+          ),
         ),
       ),
     );

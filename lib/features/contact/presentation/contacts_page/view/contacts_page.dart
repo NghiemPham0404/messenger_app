@@ -1,6 +1,10 @@
+import 'package:pulse_chat/core/network/local_auth_source.dart';
 import 'package:pulse_chat/features/contact/domain/entities/contact.dart';
 import 'package:pulse_chat/features/contact/presentation/contacts_page/change_notifier/contacts_notifier.dart';
 import 'package:pulse_chat/features/contact/presentation/sent_requests_page/view/sent_requests_page.dart';
+import 'package:pulse_chat/features/conversation/di/chat_provider.dart';
+import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/change_notifier/chat_header_notifier.dart';
+import 'package:pulse_chat/features/conversation/presentation/pages/chat_page/view/chat_page.dart';
 import 'package:pulse_chat/features/group/presentation/group_pages/notifier/user_groups_notifier.dart';
 import 'package:pulse_chat/features/contact/presentation/components/contact_item.dart';
 import 'package:pulse_chat/features/group/presentation/group_pages/view/user_group_page.dart';
@@ -113,17 +117,17 @@ class ContactsPageState extends State<ContactsPage>
   Widget _contactPage(BuildContext context, ContactsNotifier viewModel) {
     return viewModel.isLoading
         ? Scaffold(body: Center(child: CircularProgressIndicator()))
-        : SafeArea(
-          child: Scaffold(
-            body: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: [
-                  _getPendingList(context, viewModel),
-                  _getFriendList(context, viewModel),
-                ],
-              ),
-            ),
+        : RefreshIndicator(
+          onRefresh: () async {
+            await viewModel.getFriendList();
+            await viewModel.getPendingRequests();
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              _getPendingList(context, viewModel),
+              _getFriendList(context, viewModel),
+            ],
           ),
         );
   }
@@ -188,6 +192,10 @@ class ContactsPageState extends State<ContactsPage>
                   children: List.generate(
                     friendListAlphaBetGroup[sortedKeys[i]]!.length,
                     (index) => FriendItem(
+                      onTap:
+                          () => _navigateToChatPage(
+                            friendListAlphaBetGroup[sortedKeys[i]]![index],
+                          ),
                       contact: friendListAlphaBetGroup[sortedKeys[i]]![index],
                     ),
                   ),
@@ -203,5 +211,31 @@ class ContactsPageState extends State<ContactsPage>
   void generateSortedKey() {
     sortedKeys = friendListAlphaBetGroup.keys.map((k) => k.toString()).toList();
     sortedKeys.sort((a, b) => a.compareTo(b));
+  }
+
+  void _navigateToChatPage(Contact contact) {
+    final localAuthSource = context.read<LocalAuthSource>();
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoPageRoute(
+        builder:
+            (context) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider(
+                  create:
+                      (context) => ChatHeaderNotifier(
+                        otherId: contact.otherUser.id,
+                        dislayName: contact.otherUser.name,
+                        displayAvatar: contact.otherUser.avatar,
+                      ),
+                ),
+                ...getChatDirectProviders(
+                  localAuthSource.getCachedUser()!.id,
+                  contact.otherUser.id,
+                ),
+              ],
+              child: const ChatPage(),
+            ),
+      ),
+    );
   }
 }

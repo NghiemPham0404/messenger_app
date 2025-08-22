@@ -71,6 +71,8 @@ List<SingleChildWidget> directChatProviders = [
   ),
   // Usecase ------------------------------------------------------------------
   ...chatUsecaseProviders,
+  // ChangeNotifier ------------------------------------------------------------------
+  ...getChatCommonChangeNotifierProviders,
 ];
 
 List<SingleChildWidget> groupChatProviders = [
@@ -87,12 +89,49 @@ List<SingleChildWidget> groupChatProviders = [
   ),
   // UseCase-------------------------------------------------------------------
   ...chatUsecaseProviders,
+  // ChangeNotifier ------------------------------------------------------------------
+  ...getChatCommonChangeNotifierProviders,
+];
+
+List<SingleChildWidget> getChatCommonChangeNotifierProviders = [
+  ChangeNotifierProvider(
+    create:
+        (context) => ChatInputNotifier(
+          chatNotifier: context.read<ChatHistoryNotifier>(),
+          localAuthSource: context.read<LocalAuthSource>(),
+          sendMessage: context.read<SendMessage>(),
+          uploadImageFile: context.read<UploadImageFile>(),
+          uploadMediaFile: context.read<UploadMediaFile>(),
+        ),
+  ),
+  ChangeNotifierProvider(
+    create:
+        (context) => ChatDownloadNotifier(
+          chatHistoryNotifier: context.read<ChatHistoryNotifier>(),
+          downloadMediaFile: context.read<DownloadMediaFile>(),
+        ),
+  ),
+  ChangeNotifierProvider(
+    create:
+        (context) => ChatOptionNotifier(
+          chatHistoryNotifier: context.read<ChatHistoryNotifier>(),
+          updateMessage: context.read<UpdateMessage>(),
+          deleteMessage: context.read<DeleteMessage>(),
+        ),
+  ),
+  ChangeNotifierProvider<ChatSocketNotifier>(
+    create:
+        (context) => ChatSocketNotifier(
+          chatHistoryNotifier: context.read<ChatHistoryNotifier>(),
+          getSocketMessageStream: context.read<GetSocketMessageStream>(),
+        ),
+  ),
 ];
 
 List<SingleChildWidget> getChatProviders(
-  int currentUserId,
-  Conversation conversation,
-) {
+  int currentUserId, {
+  required Conversation conversation,
+}) {
   debugPrint("current user id : $currentUserId");
   final groupId = conversation.groupId;
   final otherUserId =
@@ -107,7 +146,12 @@ List<SingleChildWidget> getChatProviders(
     else if (conversation.receiverId != null)
       ...directChatProviders,
     ChangeNotifierProvider(
-      create: (context) => ChatHeaderNotifier(conversation: conversation),
+      create:
+          (context) => ChatHeaderNotifier(
+            otherId: groupId ?? otherUserId ?? 0,
+            dislayName: conversation.displayName,
+            displayAvatar: conversation.displayAvatar,
+          ),
     ),
     ChangeNotifierProvider(
       create:
@@ -118,37 +162,41 @@ List<SingleChildWidget> getChatProviders(
             localAuthSource: context.read<LocalAuthSource>(),
           ),
     ),
+    ...getChatCommonChangeNotifierProviders,
+  ];
+}
+
+List<SingleChildWidget> getChatGroupProviders(int currentUserId, int groupId) {
+  return [
+    ...groupChatProviders,
     ChangeNotifierProvider(
       create:
-          (context) => ChatInputNotifier(
-            chatNotifier: context.read<ChatHistoryNotifier>(),
+          (context) => ChatHistoryNotifier(
+            getChatHistory: context.read<GetChatHistory>(),
+            checkExistenceFile: context.read<CheckExistenceFile>(),
+            otherId: groupId,
             localAuthSource: context.read<LocalAuthSource>(),
-            sendMessage: context.read<SendMessage>(),
-            uploadImageFile: context.read<UploadImageFile>(),
-            uploadMediaFile: context.read<UploadMediaFile>(),
           ),
     ),
+    ...getChatCommonChangeNotifierProviders,
+  ];
+}
+
+List<SingleChildWidget> getChatDirectProviders(
+  int currentUserId,
+  int otherUserId,
+) {
+  return [
+    ...directChatProviders,
     ChangeNotifierProvider(
       create:
-          (context) => ChatDownloadNotifier(
-            chatHistoryNotifier: context.read<ChatHistoryNotifier>(),
-            downloadMediaFile: context.read<DownloadMediaFile>(),
+          (context) => ChatHistoryNotifier(
+            getChatHistory: context.read<GetChatHistory>(),
+            checkExistenceFile: context.read<CheckExistenceFile>(),
+            otherId: otherUserId,
+            localAuthSource: context.read<LocalAuthSource>(),
           ),
     ),
-    ChangeNotifierProvider(
-      create:
-          (context) => ChatOptionNotifier(
-            chatHistoryNotifier: context.read<ChatHistoryNotifier>(),
-            updateMessage: context.read<UpdateMessage>(),
-            deleteMessage: context.read<DeleteMessage>(),
-          ),
-    ),
-    ChangeNotifierProvider<ChatSocketNotifier>(
-      create:
-          (context) => ChatSocketNotifier(
-            chatHistoryNotifier: context.read<ChatHistoryNotifier>(),
-            getSocketMessageStream: context.read<GetSocketMessageStream>(),
-          ),
-    ),
+    ...getChatCommonChangeNotifierProviders,
   ];
 }

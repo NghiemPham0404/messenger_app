@@ -1,8 +1,13 @@
 import 'package:flutter/widgets.dart';
-import 'package:pulse_chat/features/conversation/domain/entities/conversation.dart';
 
 class ChatHeaderNotifier extends ChangeNotifier {
-  final Conversation conversation;
+  int otherId;
+  String dislayName;
+  String? displayAvatar;
 
-  ChatHeaderNotifier({required this.conversation});
+  ChatHeaderNotifier({
+    required this.otherId,
+    required this.dislayName,
+    this.displayAvatar,
+  });
 }

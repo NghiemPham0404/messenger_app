@@ -6,6 +6,7 @@ import 'package:pulse_chat/features/group/domain/entities/group_member_check.dar
 import 'package:pulse_chat/features/group/domain/usecase/group/get_user_invite_groups.dart';
 import 'package:pulse_chat/features/group/domain/usecase/group/get_user_joined_groups.dart';
 import 'package:pulse_chat/features/group/domain/usecase/group_member/accept_member.dart';
+import 'package:pulse_chat/features/group/domain/usecase/group_member/check_member.dart';
 
 class UserGroupsNotifier extends ChangeNotifier {
   // DEPENDENCIES --------------------------------------------------------------------------------
@@ -17,14 +18,18 @@ class UserGroupsNotifier extends ChangeNotifier {
 
   final AcceptMember _acceptJoinGroupInvite;
 
+  final CheckMemberStatus _checkMemberStatus;
+
   UserGroupsNotifier({
     required LocalAuthSource localAuthSource,
     required GetUserJoinedGroups getUserJoinedGroups,
     required GetUserInviteGroup getUserInviteGroup,
+    required CheckMemberStatus checkMemberStatus,
     required AcceptMember acceptMember,
   }) : _localAuthSource = localAuthSource,
        _getUserJoinedGroups = getUserJoinedGroups,
        _getUserInviteGroup = getUserInviteGroup,
+       _checkMemberStatus = checkMemberStatus,
        _acceptJoinGroupInvite = acceptMember;
 
   // PROPERTIES ----------------------------------------------------------------------------------
@@ -105,12 +110,11 @@ class UserGroupsNotifier extends ChangeNotifier {
         _joiningInvites = response.results;
 
         for (final group in _joiningInvites) {
-          memberStatusMap[group.id] = GroupMemberCheck(
-            userId: _localAuthSource.getCachedUser()?.id ?? 0,
-            isHost: false,
-            isSubHost: false,
-            status: 0,
-          );
+          final groupMemberStatus = await _checkMemberStatus(group.id, [
+            _localAuthSource.getCachedUser()!.id,
+          ]);
+
+          memberStatusMap[group.id] = groupMemberStatus.results[0];
         }
 
         _totalInvites = response.totalResults;

@@ -21,6 +21,7 @@ class ContactItem extends StatelessWidget {
       title: Text(user.name, style: TextStyle(fontWeight: FontWeight.bold)),
       trailing: getTrailing(context),
       subtitle: getSubTitle(context),
+      onTap: () => onTap!(),
     );
   }
 
@@ -34,7 +35,7 @@ class ContactItem extends StatelessWidget {
 }
 
 class FriendItem extends ContactItem {
-  const FriendItem({required super.contact, super.key});
+  const FriendItem({required super.contact, super.onTap, super.key});
 
   @override
   Widget getTrailing(BuildContext context) {

@@ -61,7 +61,7 @@ class GroupDetailNotifier extends ChangeNotifier {
        _updateGroup = updateGroup,
        _deleteGroup = deleteGroup,
        _requestToJoinGroup = requestToJoinGroup,
-       _deleteMember = deleteMember {}
+       _deleteMember = deleteMember;
 
   void setError(String? error) {
     _error = error;
