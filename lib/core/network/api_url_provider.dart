@@ -5,14 +5,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class ApiUrlProvider {
   late final String _apiUrl;
   late final String _host;
-  late final String _port;
   late final String _apiVersion;
   late final String _secure;
 
   ApiUrlProvider._internal() {
     _apiVersion = dotenv.env['API_VERSION'] ?? '1';
-    _host = dotenv.env['HOST'] ?? '192.168.1.1';
-    _port = dotenv.env['PORT'] ?? '8000';
+    _host = dotenv.env['HOST'] ?? '192.168.1.1:8000';
     _secure = dotenv.env['SECURE'] ?? 'http';
     _apiUrl = "$_secure://$_host";
   }
