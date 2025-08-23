@@ -1,4 +1,4 @@
-name: chatting_app
+name: pulse_chat
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -60,6 +60,7 @@ dependencies:
   hive_flutter: ^1.1.0
   firebase_messaging: ^15.2.10
   flutter_local_notifications: ^19.4.0
+  flutter_native_splash: ^2.4.6
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -137,3 +138,20 @@ flutter_icons:
   adaptive_icon_background: "assets/images/app_logo_bg.png"
   adaptive_icon_foreground: "assets/images/app_logo.png"
   image_path: "assets/images/app_logo.png"
+
+# dart pub run flutter_native_splash:create
+flutter_native_splash:
+  android: true
+  ios: true
+
+  color : "#ffffff"
+  image: "assets/images/app_logo_dark.png"
+  
+  color_dark: "#121212"
+  image_dark: "assets/images/app_logo.png"
+
+  android_12:
+    image: "assets/images/app_logo_dark.png"
+    color: "#ffffff"
+    color_dark: "#121212"
+    image_dark: "assets/images/app_logo.png"
